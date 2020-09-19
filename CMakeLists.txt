@@ -41,7 +41,7 @@ include_directories(Dependencies/include/
 # add source files
 file(GLOB VENDORS_SOURCES Dependencies/vendor/glad/src/glad.c)
 file(GLOB PROJECT_SOURCES Dependencies/source/*.cpp Dependencies/source/*.c)
-file(GLOB PROJECT_HEADERS Dependencies/include/*)
+file(GLOB PROJECT_HEADERS Dependencies/include/*h)
 file(GLOB PROJECT_SHADERS
 		Dependencies/shaders/*.glsl)
 file(GLOB PROJECT_GEOMETRY_SHADERS
