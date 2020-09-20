@@ -16,9 +16,7 @@ int main()
 {
 
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#ifdef _DEBUG      
-    std::cerr << "DEBUG MODE!\n";     
-#endif
+
     /* Initialize the library */
     if (!glfwInit())
         return -1;
@@ -68,8 +66,6 @@ int main()
     
 
     Model* Obj = ReadFBX("BOX.fbx");
-
-    std::cout << "Hello World\n";
 
     
     Camera cam(window);

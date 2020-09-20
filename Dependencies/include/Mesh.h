@@ -22,11 +22,10 @@ public:
     std::vector<unsigned int> indices;
     bool prepared;
 
-
     void Mesh::prepare()
     {
 
-        std::cout << vertices.size() << "v " << indices.size() << "i\n";
+        std::cout << "This mesh has\n\t"<< vertices.size() << " vertices\n\t" << indices.size() << " indices\n";
 
         prepared = true;
         glGenVertexArrays(1, &VAO);
@@ -85,6 +84,7 @@ class Model
 {
 public:
     std::vector<Mesh*> meshes;
+    std::string name;
 
     void Draw(Shader* shader)
     {

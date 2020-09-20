@@ -18,7 +18,7 @@ if(MSVC)
 	
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 
-	set(FBXSDKpath "C:/Program Files/Autodesk/FBX/FBX SDK/2019.5")
+	set(FBXSDKpath "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1")
 
 
 
