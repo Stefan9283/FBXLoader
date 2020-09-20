@@ -1,4 +1,4 @@
-##FBX Loader w/ OpenGL viewer
+## FBX Loader w/ OpenGL viewer
 
 
 
