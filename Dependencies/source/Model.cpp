@@ -1,5 +1,27 @@
 #include "Model.h"
 
+void Model::Draw(Shader* shader)
+{
+    glm::mat4 transform = getModelMatrix();
+    shader->setMat4("model", &transform);
+    for (auto mesh : meshes)
+        mesh->Draw(shader);
+}
+Model::~Model()
+{
+    for (auto mesh : meshes)
+        delete mesh;
+}
+
+glm::mat4 Model::getModelMatrix()
+{
+    glm::mat4 T, R, S;
+    T = glm::translate(glm::mat4(1), Position);
+    R = glm::toMat4(Rotation);
+    S = glm::scale(glm::mat4(1), Scaling);
+    return T * R * S;
+}
+
 
 Mesh* getMeshData(FbxNode* pNode)
 {
