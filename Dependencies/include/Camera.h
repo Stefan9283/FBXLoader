@@ -22,10 +22,7 @@ public:
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        int w, h;
-        glfwGetWindowSize(window, &w, &h);
-
-        update_proj(h, w);
+        update_proj(window);
         update_view();
     }
 
@@ -46,17 +43,20 @@ public:
     }
 
 
-    void update_view()
-    {
-        view = glm::lookAt(position, position + goFront, goUp);
-    }
+    
     glm::mat4* getviewmatrix()
     {
         return &view;
     }
-    void update_proj(int height, int width)
+    void update_view()
     {
-        proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f);
+        view = glm::lookAt(position, position + goFront, goUp);
+    }
+    void update_proj(GLFWwindow *window)
+    {
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        proj = glm::perspective(glm::radians(45.0f), (float)w / (float)h, 0.1f, 10000.0f);
     }
     glm::mat4* getprojmatrix()
     {
@@ -104,11 +104,6 @@ public:
         }
         update_view();
 
-
-
-        // close window
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
 
         // front back
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

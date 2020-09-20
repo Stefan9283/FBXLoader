@@ -2,7 +2,7 @@
 #include "Common.h"
 
 
-#include "Mesh.h"
+#include "Model.h"
 #include "Shader.h"
 #include "Camera.h"
 
@@ -69,8 +69,6 @@ int main()
 
     glm::mat4* proj, * view;
 
-    glm::mat4 model = glm::mat4(1);
-    shader->setMat4("model", &model);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -80,6 +78,7 @@ int main()
         
         cam.Move(window);
         view = cam.getviewmatrix();
+        cam.update_proj(window);
         proj = cam.getprojmatrix();
         shader->setMat4("view", view);
         shader->setMat4("proj", proj);

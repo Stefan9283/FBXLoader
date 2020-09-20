@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common.h"
-
 #include "Shader.h"
 
 typedef struct Vertex
@@ -9,9 +8,6 @@ typedef struct Vertex
     glm::vec3 Position;
     glm::vec3 Normal;
 };
-
-
-
 
 
 class Mesh
@@ -24,8 +20,8 @@ public:
 
     void Mesh::prepare()
     {
-
-        std::cout << "This mesh has\n\t"<< vertices.size() << " vertices\n\t" << indices.size() << " indices\n";
+        assert(vertices.size() != 0);
+        std::cout << "This mesh has\n\t" << vertices.size() << " vertices\n\t" << indices.size() << " indices\n";
 
         prepared = true;
         glGenVertexArrays(1, &VAO);
@@ -41,21 +37,21 @@ public:
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-        
+
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-        
+
         glBindVertexArray(0);
     }
 
-    void Draw(Shader *shader)
+    void Draw(Shader* shader)
     {
         shader->setMat4("mesh_model", &Transform);
         shader->bind();
-        
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-                
+
         glBindVertexArray(0);
         shader->unbind();
     }
@@ -78,17 +74,19 @@ private:
     unsigned int VAO, VBO, EBO;
 };
 
-Mesh* getMeshData(FbxNode* pNode);
-
 class Model
 {
 public:
     std::vector<Mesh*> meshes;
     std::string name;
-    glm::mat4 transform;
+    glm::vec3 Position, Scaling;
+    glm::quat Rotation;
+
 
     void Draw(Shader* shader)
     {
+        glm::mat4 transform = getModelMatrix();
+        shader->setMat4("model", &transform);
         for (auto mesh : meshes)
             mesh->Draw(shader);
     }
@@ -97,9 +95,20 @@ public:
         for (auto mesh : meshes)
             delete mesh;
     }
+
+    glm::mat4 getModelMatrix()
+    {
+        glm::mat4 T, R, S;
+        T = glm::translate(glm::mat4(1), Position);
+        R = glm::toMat4(Rotation);
+        S = glm::scale(glm::mat4(1), Scaling);
+        return T * R * S;
+    }
+
+
 };
 
-
+Mesh* getMeshData(FbxNode* pNode);
 Model* ReadFBX(const char* path);
 
 

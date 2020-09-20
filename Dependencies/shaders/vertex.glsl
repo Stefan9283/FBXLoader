@@ -15,6 +15,6 @@ void main()
 {
     vec4 vertPos = model * mesh_model * vec4(positions, 1.0f);
     gl_Position = proj * view * vertPos;
-    Norm = normals;
+    Norm = mat3(transpose(inverse(model * mesh_model))) * normals;
     FragPos = vec3(vertPos);
 };

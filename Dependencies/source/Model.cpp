@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Model.h"
 
 
 Mesh* getMeshData(FbxNode* pNode)
@@ -152,14 +152,19 @@ Model* ReadFBX(const char* path)
     FbxVector4 translation = lRootNode->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 scaling = lRootNode->GetGeometricScaling(FbxNode::eSourcePivot);
 
+    /*
     glm::mat4 T, R, S;
     S = glm::scale(glm::mat4(1), glm::vec3(scaling[0], scaling[1], scaling[2]));
     T = glm::translate(glm::mat4(1), glm::vec3(translation[0], translation[1], translation[2]));
+    */
+    glm::mat4 R;
     R = glm::rotate(glm::mat4(1), glm::radians((float)rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
     R = glm::rotate(R, glm::radians((float)rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
     R = glm::rotate(R, glm::radians((float)rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    new_model->transform = T * R * S;
+    new_model->Rotation = glm::toQuat(R);
+    new_model->Position = glm::vec3(translation[0], translation[1], translation[2]);
+    new_model->Scaling = glm::vec3(scaling[0], scaling[1], scaling[2]);
 
 
     //std::cout << "nodes total " << lScene->GetNodeCount() << "\n";
