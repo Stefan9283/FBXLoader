@@ -85,6 +85,7 @@ class Model
 public:
     std::vector<Mesh*> meshes;
     std::string name;
+    glm::mat4 transform;
 
     void Draw(Shader* shader)
     {

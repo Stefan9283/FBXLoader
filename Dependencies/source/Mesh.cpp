@@ -1,19 +1,48 @@
 #include "Mesh.h"
 
+
 Mesh* getMeshData(FbxNode* pNode)
 {
     const char* nodeName = pNode->GetName();
 
+    FbxAMatrix geometricMatrix;
+    geometricMatrix.SetIdentity();
+
     FbxVector4 rotation = pNode->GetGeometricRotation(FbxNode::eSourcePivot);
     FbxVector4 translation = pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 scaling = pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+    geometricMatrix.SetT(translation);
+    geometricMatrix.SetR(rotation);
+    geometricMatrix.SetS(scaling);
 
-    glm::mat4 T, R, S;
-    S = glm::scale(glm::mat4(1), glm::vec3(scaling[0], scaling[1], scaling[2]));
+    FbxAMatrix localMatrix = pNode->EvaluateLocalTransform();
+
+    FbxNode* pParentNode = pNode->GetParent();
+    FbxAMatrix parentMatrix = pParentNode->EvaluateLocalTransform();
+    while ((pParentNode = pParentNode->GetParent()) != NULL)
+    {
+        parentMatrix = pParentNode->EvaluateLocalTransform() * parentMatrix;
+    }
+
+    FbxAMatrix matrix = parentMatrix * localMatrix * geometricMatrix;
+
+    translation = matrix.GetT();
+    scaling = matrix.GetS();
+    rotation = matrix.GetR();
+
+    //std::cout << rotation[0] << " " << rotation[1] << " " << rotation[2] << " " << rotation[3] << "\n";
+
+    glm::mat4 T, R1, R2, R3, S;
+
     T = glm::translate(glm::mat4(1), glm::vec3(translation[0], translation[1], translation[2]));
-    R = glm::rotate(glm::mat4(1), glm::radians((float)rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
-    R = glm::rotate(R, glm::radians((float)rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
-    R = glm::rotate(R, glm::radians((float)rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    //glm::rotate(glm::mat4(1), (float)glm::radians(rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    R1 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
+    R2 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
+    R3 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    S = glm::scale(glm::mat4(1), glm::vec3(scaling[0], scaling[1], scaling[2]));
 
     FbxMesh* mesh = pNode->GetMesh();
 
@@ -21,7 +50,7 @@ Mesh* getMeshData(FbxNode* pNode)
 
     Mesh* newMesh = new Mesh;
 
-    newMesh->Transform = T * R * S;
+    newMesh->Transform = T * R2 * R3 * R1  *  S;
 
     int currentIndex = 0;
 
@@ -65,13 +94,14 @@ Mesh* getMeshData(FbxNode* pNode)
             }
         }
     }
-    else std::runtime_error("Add control point method\n");
-
+    else {
+        delete newMesh;
+        std::runtime_error("Add control point method\n");
+        }
     return newMesh;
 
     
 }
-
 
 Model* ReadFBX(const char* path)
 {
@@ -113,7 +143,24 @@ Model* ReadFBX(const char* path)
     Model* new_model = new Model;
     std::vector<Mesh*> Meshes;
 
+
+    
+
     FbxNode* lRootNode = lScene->GetRootNode();
+
+    FbxVector4 rotation = lRootNode->GetGeometricRotation(FbxNode::eSourcePivot);
+    FbxVector4 translation = lRootNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+    FbxVector4 scaling = lRootNode->GetGeometricScaling(FbxNode::eSourcePivot);
+
+    glm::mat4 T, R, S;
+    S = glm::scale(glm::mat4(1), glm::vec3(scaling[0], scaling[1], scaling[2]));
+    T = glm::translate(glm::mat4(1), glm::vec3(translation[0], translation[1], translation[2]));
+    R = glm::rotate(glm::mat4(1), glm::radians((float)rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
+    R = glm::rotate(R, glm::radians((float)rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
+    R = glm::rotate(R, glm::radians((float)rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    new_model->transform = T * R * S;
+
 
     //std::cout << "nodes total " << lScene->GetNodeCount() << "\n";
     

@@ -36,6 +36,14 @@ public:
         //unbind();
     }
 
+    void setVec3(const std::string& name, const glm::vec3 vec)
+    {
+        bind();
+        glUniform3f(glGetUniformLocation(id, name.c_str()), vec.x, vec.y, vec.z);
+        //unbind();
+    }
+
+
     Shader(const char* filepath_v, const char* filepath_f)  // new version
     {
         ShaderProgramSource source = ParseShader(filepath_v, filepath_f);

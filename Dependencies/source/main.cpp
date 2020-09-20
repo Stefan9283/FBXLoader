@@ -17,7 +17,6 @@ int main()
 
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* Initialize the library */
     if (!glfwInit())
         return -1;
 
@@ -62,10 +61,8 @@ int main()
     Shader* shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
     shader->bind();
 
-   
-    
 
-    Model* Obj = ReadFBX("BOX.fbx");
+    Model* Obj = ReadFBX("SKELL.fbx");
 
     
     Camera cam(window);
@@ -86,7 +83,7 @@ int main()
         proj = cam.getprojmatrix();
         shader->setMat4("view", view);
         shader->setMat4("proj", proj);
-        
+        shader->setVec3("cameraPos", cam.position);
 
         Obj->Draw(shader);
 
@@ -95,8 +92,6 @@ int main()
         if (glfwGetKey(window, GLFW_KEY_ESCAPE))
             break;
     }   
-
-    //shader->unbind();
    
     glfwDestroyWindow(window);
     glfwTerminate();

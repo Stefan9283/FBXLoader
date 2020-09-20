@@ -10,11 +10,13 @@ struct LightSource
     vec3 position;
 };
 
+uniform vec3 cameraPos;
+
 void main()
 {
     LightSource Light;
     Light.color = vec3(1.0f);
-    Light.position = vec3(10.0f);
+    Light.position = cameraPos; // vec3(0.0f, 5.0f, -10.0f);
 
     vec3 lightDir = normalize(Light.position - FragPos);
     vec3 norm = normalize(Norm);
