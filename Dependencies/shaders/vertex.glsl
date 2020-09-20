@@ -8,10 +8,13 @@ uniform mat4 view;
 uniform mat4 model;
 uniform mat4 mesh_model;
 
-//out vec3 Norm;
+out vec3 Norm;
+out vec3 FragPos;
 
 void main()
 {
-    gl_Position = proj * view * model * mesh_model * vec4(positions, 1.0f);
-    //Norm = normals;
+    vec4 vertPos = model * mesh_model * vec4(positions, 1.0f);
+    gl_Position = proj * view * vertPos;
+    Norm = normals;
+    FragPos = vec3(positions);
 };

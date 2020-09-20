@@ -12,6 +12,8 @@ typedef struct Vertex
 
 
 
+
+
 class Mesh
 {
 public:
@@ -78,3 +80,25 @@ private:
 };
 
 Mesh* getMeshData(FbxNode* pNode);
+
+class Model
+{
+public:
+    std::vector<Mesh*> meshes;
+
+    void Draw(Shader* shader)
+    {
+        for (auto mesh : meshes)
+            mesh->Draw(shader);
+    }
+    ~Model()
+    {
+        for (auto mesh : meshes)
+            delete mesh;
+    }
+};
+
+
+Model* ReadFBX(const char* path);
+
+
