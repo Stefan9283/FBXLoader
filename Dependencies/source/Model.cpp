@@ -196,10 +196,18 @@ Model* ReadFBX(const char* path)
         {
             //std::cout << lScene->GetNode(i)->GetName() << "\n";
 
-            if (lScene->GetNode(i)->GetMesh())
+
+            for (auto attribIndex = 0; attribIndex < lScene->GetNode(i)->GetNodeAttributeCount(); attribIndex++)
             {
-                new_model->meshes.push_back(getMeshData(lScene->GetNode(i)));
+                FbxNodeAttribute* attrib = lScene->GetNode(i)->GetNodeAttributeByIndex(attribIndex);
+                switch (attrib->GetAttributeType())
+                {
+                case FbxNodeAttribute::eMesh: new_model->meshes.push_back(getMeshData(lScene->GetNode(i))); break;
+                case FbxNodeAttribute::eSkeleton: break;
+                }
             }
+
+            
         }
     //lScene->GetNode()
     /*
