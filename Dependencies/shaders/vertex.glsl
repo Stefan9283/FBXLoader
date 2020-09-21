@@ -10,6 +10,7 @@ uniform mat4 mesh_model;
 
 out vec3 Norm;
 out vec3 FragPos;
+out vec3 color;
 
 void main()
 {
@@ -17,4 +18,5 @@ void main()
     gl_Position = proj * view * vertPos;
     Norm = mat3(transpose(inverse(model * mesh_model))) * normals;
     FragPos = vec3(vertPos);
+    color = vec3()
 };

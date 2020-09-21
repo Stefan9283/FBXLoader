@@ -118,7 +118,7 @@ Mesh* getMeshData(FbxNode* pNode)
     }
     else {
         delete newMesh;
-        std::runtime_error("Add control point method\n");
+        throw std::runtime_error("Add control point method\n");
         }
     return newMesh;
 
@@ -203,7 +203,8 @@ Model* ReadFBX(const char* path)
                 switch (attrib->GetAttributeType())
                 {
                 case FbxNodeAttribute::eMesh: new_model->meshes.push_back(getMeshData(lScene->GetNode(i))); break;
-                case FbxNodeAttribute::eSkeleton: break;
+                case FbxNodeAttribute::eSkeleton: //std::cout << lScene->GetNode(i)->GetName() <<"\n"; 
+                    break;
                 }
             }
 
