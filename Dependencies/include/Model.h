@@ -18,6 +18,7 @@ public:
 
     glm::mat4 getModelMatrix();
 
+    Model();
     ~Model();
 };
 

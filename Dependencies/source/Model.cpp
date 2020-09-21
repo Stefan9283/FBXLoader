@@ -12,7 +12,12 @@ Model::~Model()
     for (auto mesh : meshes)
         delete mesh;
 }
-
+Model::Model()
+{
+    Position = glm::vec3(0.0f);
+    Scaling = glm::vec3(1.0f);
+    Rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+}
 glm::mat4 Model::getModelMatrix()
 {
     glm::mat4 T, R, S;
@@ -25,7 +30,7 @@ glm::mat4 Model::getModelMatrix()
 
 Mesh* getMeshData(FbxNode* pNode)
 {
-    const char* nodeName = pNode->GetName();
+    //const char* nodeName = pNode->GetName();
 
     FbxAMatrix geometricMatrix;
     geometricMatrix.SetIdentity();
@@ -68,53 +73,201 @@ Mesh* getMeshData(FbxNode* pNode)
 
     FbxMesh* mesh = pNode->GetMesh();
 
+#pragma region WIP
 
+    
+
+    /*
+    for (int index = 0; index < mesh->GetLayerCount(); index++)
+    {
+        FbxLayer* layer = mesh->GetLayer(index);
+        FbxLayerElementTexture* tex = layer->GetTextures(fbxsdk::FbxLayerElement::EType::eTextureDiffuse);
+        FbxLayerElementTexture* tex2 = layer->GetTextures(fbxsdk::FbxLayerElement::EType::eTextureAmbient);
+        std::cout << index << " ";
+
+        if (tex)
+            std::cout << tex->GetName();
+        if (tex2)
+            std::cout << tex->GetName();
+
+        std::cout << "\n";
+        
+    }*/
+
+
+    for (auto i = 0; i < pNode->GetMaterialCount(); i++)
+    {
+        FbxSurfaceMaterial* mat = pNode->GetMaterial(i);
+        std::cout << mat->sDiffuse << "\n";
+        
+        FbxProperty prop = mat->FindProperty(mat->sDiffuse);
+
+        
+
+        // FbxDouble3 diffuse = 
+    }
+
+
+
+
+
+
+    /*
+
+    int materialCount = pNode->GetSrcObjectCount<FbxSurfaceMaterial>();
+
+    for (int index = 0; index < materialCount; index++)
+    {
+        FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)pNode->GetSrcObject<FbxSurfaceMaterial>(index);
+
+        if (material != NULL)
+        {
+            // This only gets the material of type sDiffuse, you probably need to traverse all Standard Material Property by its name to get all possible textures.
+            FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+
+            // Check if it's layeredtextures
+            int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+
+            int textureCount = prop.GetSrcObjectCount<FbxTexture>();
+            for (int j = 0; j < textureCount; j++)
+            {
+                FbxTexture* texture = FbxCast<FbxTexture>(prop.GetSrcObject<FbxTexture>(j));
+                // Then, you can get all the properties of the texture, include its name
+                const char* textureName = texture->GetName();
+
+                FbxProperty p = texture->RootProperty.Find("Filename");
+                std::cout << textureName << " " << p.GetNameAsCStr() << "\n";
+            }
+        }
+    }
+
+    */
+
+
+
+    /*
+    for (auto i = 0; i < pNode->GetSrcObjectCount<FbxSurfaceMaterial>(); i++)
+    {
+        FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)pNode->GetSrcObject<FbxSurfaceMaterial>(i);
+
+        std::cout << material->GetName() << "\n";
+        FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+        // Check if it's layeredtextures
+        int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+        std::cout << layeredTextureCount << "\n";
+
+        if (layeredTextureCount > 0)
+        {
+            for (int j = 0; j < layeredTextureCount; j++)
+            {
+                FbxLayeredTexture* layered_texture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(j));
+                int lcount = layered_texture->GetSrcObjectCount<FbxTexture>();
+
+                for (int k = 0; k < lcount; k++)
+                {
+                    FbxTexture* texture = FbxCast<FbxTexture>(layered_texture->GetSrcObject<FbxTexture>(k));
+                    // Then, you can get all the properties of the texture, include its name
+                    const char* textureName = texture->GetName();
+                    std::cout << "\t name" << textureName << "\n";
+                }
+            }
+        }
+    }
+    
+    
+
+    for (auto materialIndex = 0; materialIndex < mesh->GetElementMaterialCount(); materialIndex++)
+    {
+         FbxGeometryElementMaterial* material = mesh->GetElementMaterial(materialIndex);
+         std::cout << material->GetName() << "\n";
+         
+         //material.text
+    }
+
+
+
+    FbxStringList lUVSetNameList;
+    mesh->GetUVSetNames(lUVSetNameList);
+
+    
+
+    for (auto textureIndex = 0; textureIndex < lUVSetNameList.GetCount(); textureIndex++)
+    {
+        FbxStringListItem* texture = lUVSetNameList.GetItemAt(textureIndex);
+        //texture->mString
+  
+        std::cout << lUVSetNameList.GetStringAt(textureIndex) << "\n";
+    }
+    */
+
+#pragma endregion
 
     Mesh* newMesh = new Mesh;
 
-    newMesh->Transform = T * R2 * R3 * R1  *  S;
+    newMesh->Transform = T * R2 * R3 * R1 * S;
 
     int currentIndex = 0;
 
     FbxGeometryElementNormal* lNormalElement = mesh->GetElementNormal();
+    FbxGeometryElementUV* lUVElement = mesh->GetElementUV();
 
     if (lNormalElement->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
     {
-        int lIndexByPolygonVertex = 0;
+        if (lUVElement->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+        { 
+        
+            int lIndexByPolygonVertex = 0;
 
-        for (auto i = 0; i < mesh->GetPolygonCount(); i++)
-        {
-
-            for (auto j = 0; j < mesh->GetPolygonSize(i); j++)
+            for (auto i = 0; i < mesh->GetPolygonCount(); i++)
             {
-                int vertIndex = mesh->GetPolygonVertex(i, j);
-                newMesh->indices.push_back(currentIndex++);
-                Vertex newVert;
+
+                for (auto j = 0; j < mesh->GetPolygonSize(i); j++)
+                {
+                    int vertIndex = mesh->GetPolygonVertex(i, j);
+                    newMesh->indices.push_back(currentIndex++);
+                    Vertex newVert;
 
 
-                fbxsdk::FbxVector4 Position = mesh->GetControlPointAt(vertIndex);
-                newVert.Position = glm::vec3(Position[0], Position[1], Position[2]);
+                    fbxsdk::FbxVector4 Position = mesh->GetControlPointAt(vertIndex);
+                    newVert.Position = glm::vec3(Position[0], Position[1], Position[2]);
 
-                int lNormalIndex = 0;
-                //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
-                if (lNormalElement->GetReferenceMode() == FbxGeometryElement::eDirect)
-                    lNormalIndex = lIndexByPolygonVertex;
+                    int lNormalIndex = 0;
+                    //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
+                    if (lNormalElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+                        lNormalIndex = lIndexByPolygonVertex;
 
-                //reference mode is index-to-direct, get normals by the index-to-direct
-                if (lNormalElement->GetReferenceMode() == FbxGeometryElement::eIndexToDirect)
-                    lNormalIndex = lNormalElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
+                    //reference mode is index-to-direct, get normals by the index-to-direct
+                    if (lNormalElement->GetReferenceMode() == FbxGeometryElement::eIndexToDirect)
+                        lNormalIndex = lNormalElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
 
-                //Got normals of each polygon-vertex.
-                FbxVector4 lNormal = lNormalElement->GetDirectArray().GetAt(lNormalIndex);
-                //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
+                    //Got normals of each polygon-vertex.
+                    FbxVector4 lNormal = lNormalElement->GetDirectArray().GetAt(lNormalIndex);
+                    //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
 
-                newVert.Normal = glm::vec3(lNormal[0], lNormal[1], lNormal[2]);
+                    newVert.Normal = glm::vec3(lNormal[0], lNormal[1], lNormal[2]);
 
-                newMesh->vertices.push_back(newVert);
 
-                lIndexByPolygonVertex++;
+
+                    int UVindex;
+
+
+                    UVindex = lUVElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
+                    FbxVector2 TextureCoords = lUVElement->GetDirectArray().GetAt(UVindex);
+
+                    newVert.TextureCoords = glm::vec2(TextureCoords[0], TextureCoords[1]);
+
+                    newMesh->vertices.push_back(newVert);
+
+
+
+                    lIndexByPolygonVertex++;
+                }
             }
+
         }
+        
     }
     else {
         delete newMesh;
@@ -123,6 +276,35 @@ Mesh* getMeshData(FbxNode* pNode)
     return newMesh;
 
     
+}
+
+
+
+void buildSkellyBoi(FbxNode* rootNode)
+{
+    FbxSkeleton* lSkeleton = (FbxSkeleton*)rootNode->GetNodeAttribute();
+    /*
+    printf("Skeleton Name: ", (char*)rootNode->GetName());
+    //DisplayMetaDataConnections(lSkeleton);
+
+    const char* lSkeletonTypes[] = { "Root", "Limb", "Limb Node", "Effector" };
+
+    printf("    Type: ", lSkeletonTypes[lSkeleton->GetSkeletonType()]);
+
+    if (lSkeleton->GetSkeletonType() == FbxSkeleton::eLimb)
+    {
+        printf("    Limb Length: ", lSkeleton->LimbLength.Get());
+    }
+    else if (lSkeleton->GetSkeletonType() == FbxSkeleton::eLimbNode)
+    {
+        printf("    Limb Node Size: ", lSkeleton->Size.Get());
+    }
+    else if (lSkeleton->GetSkeletonType() == FbxSkeleton::eRoot)
+    {
+        printf("    Limb Root Size: ", lSkeleton->Size.Get());
+    }
+
+    printf("    Color: ", lSkeleton->GetLimbNodeColor());*/
 }
 
 Model* ReadFBX(const char* path)
@@ -165,8 +347,16 @@ Model* ReadFBX(const char* path)
     Model* new_model = new Model;
     std::vector<Mesh*> Meshes;
 
+    /*
+    std::cout << "/////////////////////////////////////////////////////\n";
 
+    for (auto index = 0; index < lScene->GetTextureCount(); index++)
+    {
+        std::cout << index << "\n";
+    }
     
+    std::cout << "/////////////////////////////////////////////////////\n";
+    */
 
     FbxNode* lRootNode = lScene->GetRootNode();
 
@@ -191,6 +381,10 @@ Model* ReadFBX(const char* path)
 
     //std::cout << "nodes total " << lScene->GetNodeCount() << "\n";
     
+
+
+    buildSkellyBoi(lRootNode);
+
     if (lRootNode)
         for (int i = 0; i < lScene->GetNodeCount(); i++)
         {

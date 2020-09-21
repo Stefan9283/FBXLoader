@@ -16,8 +16,9 @@
 #include "gtc/quaternion.hpp"
 #include "gtx/quaternion.hpp"
 
-#include <fbxsdk.h>
-#include "fbxsdk/utils/fbxgeometryconverter.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
+#include <fbxsdk.h>
+#include "fbxsdk/utils/fbxgeometryconverter.h"

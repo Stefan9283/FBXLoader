@@ -11,6 +11,7 @@ struct LightSource
 };
 
 uniform vec3 cameraPos;
+in vec3 color;
 
 void main()
 {
@@ -25,5 +26,5 @@ void main()
     vec3 reflectDir = reflect(-lightDir, norm);
 
 
-    gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f) * diff * vec4(Light.color, 1.0f);
+    gl_FragColor = vec4(color, 1.0f) * diff * vec4(Light.color, 1.0f);
 };

@@ -13,13 +13,12 @@ int main()
 {
     Window w;
     
-
-    
     Shader* shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
     shader->bind();
 
 
     Model* Obj = ReadFBX("cow2.fbx");
+
 
     
     Camera cam(w.window);
