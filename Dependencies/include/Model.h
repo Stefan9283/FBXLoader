@@ -4,6 +4,8 @@
 #include "Shader.h"
 #include "Mesh.h"
 
+
+
 class Model
 {
 public:
@@ -20,9 +22,10 @@ public:
 
     Model();
     ~Model();
+
 };
 
-Mesh* getMeshData(FbxNode* pNode);
-Model* ReadFBX(const char* path);
+
+
 
 
