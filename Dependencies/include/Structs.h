@@ -11,6 +11,6 @@ struct Vertex
 
 struct Texture
 {
-    std::string filename;
+    std::string filename, type;
     unsigned int id;
 };

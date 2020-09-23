@@ -131,6 +131,7 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
                         Texture newTex;
                         newTex.filename = f->GetFileName();
+                        newTex.type = type;
 
                         int index = isAlreadyLoaded(newTex);
                         if (index == -1)
@@ -160,7 +161,8 @@ Mesh* App::getMeshData(FbxNode* pNode)
                     //                     texture->GetTextureUse()
                     Texture newTex;
                     newTex.filename = f->GetFileName();
-                    
+                    newTex.type = type;
+
                     f->GetTextureUse();
                     
                     f->GetMaterialUse();
