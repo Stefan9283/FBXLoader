@@ -40,7 +40,11 @@ public:
         bind();
         glUniform3f(glGetUniformLocation(id, name.c_str()), vec.x, vec.y, vec.z);
     }
-
+    void setInt(const std::string& name, int value)
+    {
+        bind();
+        glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+    }
 
     Shader(const char* filepath_v, const char* filepath_f)  // new version
     {

@@ -11,7 +11,10 @@ struct LightSource
 };
 
 uniform vec3 cameraPos;
-in vec3 color;
+in vec2 texCoords;
+
+uniform sampler2D texture_diffuse;
+
 
 void main()
 {
@@ -26,5 +29,5 @@ void main()
     vec3 reflectDir = reflect(-lightDir, norm);
 
 
-    gl_FragColor = vec4(color, 1.0f) * diff * vec4(Light.color, 1.0f);
+    gl_FragColor = texture(texture_diffuse, texCoords); // *diff* vec4(Light.color, 1.0f);
 };

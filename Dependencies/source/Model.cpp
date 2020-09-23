@@ -1,11 +1,11 @@
 #include "Model.h"
 
-void Model::Draw(Shader* shader)
+void Model::Draw(Shader* shader, std::vector<Texture> *textures)
 {
     glm::mat4 transform = getModelMatrix();
     shader->setMat4("model", &transform);
     for (auto mesh : meshes)
-        mesh->Draw(shader);
+        mesh->Draw(shader, textures);
 }
 Model::~Model()
 {

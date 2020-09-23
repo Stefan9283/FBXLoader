@@ -14,11 +14,9 @@ public:
     glm::vec3 Position, Scaling;
     glm::quat Rotation;
 
-
-    void Draw(Shader* shader);
-
-
     glm::mat4 getModelMatrix();
+
+    void Model::Draw(Shader* shader, std::vector<Texture>* textures);
 
     Model();
     ~Model();

@@ -30,9 +30,13 @@ void Mesh::prepare()
     glBindVertexArray(0);
 }
 
-void Mesh::Draw(Shader* shader)
+void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
 {
     shader->setMat4("mesh_model", &Transform);
+
+    for(auto tex : *textures)
+        shader->setInt("texture_diffuse", tex.id);
+
     shader->bind();
 
     glBindVertexArray(VAO);

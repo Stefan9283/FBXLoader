@@ -10,7 +10,9 @@ uniform mat4 mesh_model;
 
 out vec3 Norm;
 out vec3 FragPos;
-out vec3 color;
+out vec2 texCoords;
+
+
 
 void main()
 {
@@ -20,5 +22,5 @@ void main()
     FragPos = vec3(vertPos);
 
 
-    color = vec3(texcoords, 1- texcoords.x - texcoords.y);
+    texCoords = texcoords;
 };

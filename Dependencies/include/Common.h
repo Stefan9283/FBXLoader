@@ -9,6 +9,22 @@
 #include <iostream>
 #include <vector>
 
+#include <iostream>
+#include <vector>
+#include <future>   // std::async, std::future
+#include <thread>
+#include <chrono>
+#include <string>
+#include <string.h>
+#include <stdio.h>
+#include <limits>  // std::numeric_limits
+
+#include <unordered_map>
+#include <map>
+#include <deque>
+#include <stack>
+#include <queue>
+
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
@@ -22,3 +38,5 @@
 
 #include <fbxsdk.h>
 #include "fbxsdk/utils/fbxgeometryconverter.h"
+
+#include "stb_image.h"
