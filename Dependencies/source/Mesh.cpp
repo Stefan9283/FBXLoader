@@ -25,24 +25,84 @@ void Mesh::prepare()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TextureCoords));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TextureCoords));
 
     glBindVertexArray(0);
 }
 
+#define MAX_NUM_OF_TEXTURES 3
+
 void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
 {
+
     shader->setMat4("mesh_model", &Transform);
 
-    for(auto tex : *textures)
-        shader->setInt("texture_diffuse", tex.id);
+    std::unordered_map<std::string, int> count;
 
+
+    // add textures
+    unsigned int total = 0;
+    for (auto tex_index : texIndices)
+    {
+
+        Texture tex = (*textures)[tex_index];
+
+        glActiveTexture(GL_TEXTURE0 + total);
+        
+        std::string uniform_name = tex.type;
+        uniform_name.append("[");
+        uniform_name.append(std::to_string(count[tex.type]));
+        uniform_name.append("]");
+
+        
+        //std::cout << uniform_name.c_str()  << " " << tex.id << "\n";
+        
+        shader->setInt(uniform_name.c_str(), total);
+
+        glBindTexture(GL_TEXTURE_2D, tex.id);
+
+        count[tex.type]++;
+        total++;
+
+        if (count[tex.type] > MAX_NUM_OF_TEXTURES)
+        {
+            std::cout << "Too many textures of type: " << tex.type.c_str() << "\n";
+            assert(0);
+        }
+
+    }
+
+    // add texture count
+    for (auto x : count)
+    {
+        std::string textures_count_name;
+        textures_count_name = x.first;
+        textures_count_name.append("Count");
+        //std::cout << textures_count_name.c_str() << " " << x.second << "\n";
+        shader->setInt(textures_count_name.c_str(), x.second);
+    }
+
+   
     shader->bind();
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, nullptr);
-
     glBindVertexArray(0);
+
+    // Clean textures
+    for (int i = 0; i < total; i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+        
+
+    //std::cout << "\n";
+
     shader->unbind();
 }
 

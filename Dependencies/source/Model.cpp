@@ -2,6 +2,7 @@
 
 void Model::Draw(Shader* shader, std::vector<Texture> *textures)
 {
+  
     glm::mat4 transform = getModelMatrix();
     shader->setMat4("model", &transform);
     for (auto mesh : meshes)

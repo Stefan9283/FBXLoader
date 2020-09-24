@@ -15,7 +15,7 @@ public:
     bool prepared;
 
     void Mesh::prepare();
-    void Mesh::Draw(Shader* shader, std::vector<Texture>* textures);
+    void Mesh::Draw(Shader* shader, std::vector<Texture> *textures);
 
     Mesh();
     ~Mesh();

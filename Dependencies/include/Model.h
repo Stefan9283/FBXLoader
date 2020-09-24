@@ -16,7 +16,7 @@ public:
 
     glm::mat4 getModelMatrix();
 
-    void Model::Draw(Shader* shader, std::vector<Texture>* textures);
+    void Model::Draw(Shader* shader, std::vector<Texture> *textures);
 
     Model();
     ~Model();
