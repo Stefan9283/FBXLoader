@@ -7,3 +7,6 @@
 [submodule "Dependencies/vendor/glm"]
 	path = Dependencies/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "Dependencies/vendor/imgui"]
+	path = Dependencies/vendor/imgui
+	url = https://github.com/ocornut/imgui

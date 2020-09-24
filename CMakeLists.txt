@@ -35,6 +35,8 @@ include_directories(Dependencies/include/
 					Dependencies/vendor/glfw/include
 					Dependencies/vendor/glm/glm
 					Dependencies/vendor/glad/include/
+					Dependencies/vendor/imgui
+					Dependencies/vendor/imgui/examples
 					${FBXSDKpath}/include
 					)
 
@@ -46,10 +48,16 @@ file(GLOB PROJECT_SHADERS
 		Dependencies/shaders/*.glsl)
 file(GLOB PROJECT_GEOMETRY_SHADERS
 		Dependencies/shaders/geometry/*.glsl)
-
+file(GLOB IMGUI
+		Dependencies/vendor/imgui/*.cpp
+		Dependencies/vendor/imgui/*.h
+		Dependencies/vendor/imgui/examples/imgui_impl_opengl3.cpp
+		Dependencies/vendor/imgui/examples/imgui_impl_glfw.cpp)
 
 
 source_group("shaders" FILES ${PROJECT_SHADERS})
+source_group("imgui"   FILES ${IMGUI})
+
 #source_group("geometry" FILES ${PROJECT_GEOMETRY_SHADERS})
 
 add_definitions(-DGLFW_INCLUDE_NONE -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
@@ -59,7 +67,8 @@ add_executable(${PROJECT_NAME}
 							${VENDORS_SOURCES} 
 							${PROJECT_SOURCES} 
 							${PROJECT_HEADERS}
-							${PROJECT_SHADERS})
+							${PROJECT_SHADERS}
+							${IMGUI})
 
 
 target_link_libraries(${PROJECT_NAME} 

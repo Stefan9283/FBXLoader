@@ -56,9 +56,6 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
         uniform_name.append("[");
         uniform_name.append(std::to_string(count[tex.type]));
         uniform_name.append("]");
-
-        
-        //std::cout << uniform_name.c_str()  << " " << tex.id << "\n";
         
         shader->setInt(uniform_name.c_str(), total);
 
@@ -81,7 +78,6 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
         std::string textures_count_name;
         textures_count_name = x.first;
         textures_count_name.append("Count");
-        //std::cout << textures_count_name.c_str() << " " << x.second << "\n";
         shader->setInt(textures_count_name.c_str(), x.second);
     }
 
@@ -98,10 +94,17 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
+    for (auto x : count)
+    {
+        std::string textures_count_name;
+        textures_count_name = x.first;
+        textures_count_name.append("Count");
+        //std::cout << textures_count_name.c_str() << " " << x.second << "\n";
+        shader->setInt(textures_count_name.c_str(), 0);
+    }
         
 
-    //std::cout << "\n";
+    std::cout << "\n";
 
     shader->unbind();
 }

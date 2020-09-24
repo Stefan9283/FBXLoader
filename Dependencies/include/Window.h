@@ -48,7 +48,7 @@ public:
         glfwGetWindowSize(window, &width, &height);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-        glClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.5f, 0.8f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);

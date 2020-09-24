@@ -219,9 +219,7 @@ Mesh* App::getMeshData(FbxNode* pNode)
     fbxsdk::FbxGeometryElementNormal* lNormalElement = mesh->GetElementNormal();
     fbxsdk::FbxGeometryElementTangent* lTangentElement = mesh->GetElementTangent();
 
-    fbxsdk::FbxGeometryElementBinormal* lBinormalElement = mesh->GetElementBinormal();
-
-    std::cout << "binorm " << mesh->GetElementBinormalCount() << "\n";
+    //fbxsdk::FbxGeometryElementBinormal* lBinormalElement = mesh->GetElementBinormal();
 
     if (!lTangentElement)
     {
@@ -230,8 +228,6 @@ Mesh* App::getMeshData(FbxNode* pNode)
     }
 
     fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV();
-
-
 
     int lIndexByPolygonVertex = 0;
 
@@ -324,6 +320,10 @@ Mesh* App::getMeshData(FbxNode* pNode)
             lIndexByPolygonVertex++;
         }
     }
+    /*
+    for (auto vert : newMesh->vertices)
+        std::cout << glm::to_string(vert.Tangent) << "\n";
+*/
 #pragma endregion
 
     return newMesh;

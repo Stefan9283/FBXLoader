@@ -1,9 +1,9 @@
 #include "Model.h"
 
-void Model::Draw(Shader* shader, std::vector<Texture> *textures)
+void Model::Draw(Shader* shader, std::vector<Texture> *textures, glm::mat4 additionanTransform)
 {
   
-    glm::mat4 transform = getModelMatrix();
+    glm::mat4 transform = additionanTransform * getModelMatrix();
     shader->setMat4("model", &transform);
     for (auto mesh : meshes)
         mesh->Draw(shader, textures);
@@ -15,6 +15,8 @@ Model::~Model()
 }
 Model::Model()
 {
+    axis_rotations = glm::vec3(0);
+    old_axis_rotations = glm::vec3(0);
     Position = glm::vec3(0.0f);
     Scaling = glm::vec3(1.0f);
     Rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
@@ -23,6 +25,12 @@ glm::mat4 Model::getModelMatrix()
 {
     glm::mat4 T, R, S;
     T = glm::translate(glm::mat4(1), Position);
+
+    Rotation = glm::rotate(Rotation, glm::radians(axis_rotations.x - old_axis_rotations.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    Rotation = glm::rotate(Rotation, glm::radians(axis_rotations.y - old_axis_rotations.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    Rotation = glm::rotate(Rotation, glm::radians(axis_rotations.z - old_axis_rotations.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    old_axis_rotations = axis_rotations;
+
     R = glm::toMat4(Rotation);
     S = glm::scale(glm::mat4(1), Scaling);
     return T * R * S;

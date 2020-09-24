@@ -41,6 +41,7 @@ in vec2 texCoords;
 
 in vec3 debug_color;
 
+uniform vec3 LightPos;
 
 void main()
 {
@@ -49,9 +50,11 @@ void main()
      // vec3(0.0f, 5.0f, -10.0f);
 
     vec3 normal = Norm;
+    
     if (NormalMapCount > 0)
     {
-        Light.position = fs_in.TBN * cameraPos;
+        Light.position = fs_in.TBN * LightPos;
+
 
         normal = texture(NormalMap[0], texCoords).rgb;
         normal = 2.0 * normal - 1.0;
@@ -63,6 +66,9 @@ void main()
         //color
         vec3 color = texture(DiffuseColor[0], texCoords).rgb;
 
+        // ambient
+        vec3 ambient = color * 0.1f;
+
         // diffuse
         float diff = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = color * diff;
@@ -73,21 +79,32 @@ void main()
         float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
         vec3 specular = vec3(0.0001) * spec;
 
-        gl_FragColor = vec4(diffuse + specular, 1.0f);
+        gl_FragColor = vec4(ambient + diffuse + specular, 1.0f);
+        //gl_FragColor = vec4(ambient + diffuse + specular, 1.0f);
     }
     else
-    {
-        Light.position = cameraPos;
+    { // diffuse only
+        Light.position = LightPos;
         vec3 lightDir = normalize(Light.position - FragPos);
         vec3 norm = normalize(Norm);
         float diff = max(dot(norm, lightDir), 0.0);
 
-        vec3 reflectDir = reflect(-lightDir, norm);
+        //vec3 reflectDir = reflect(-lightDir, norm);
+        
+        //color
+        vec3 color = texture(DiffuseColor[0], texCoords).rgb;
+
+        // diffuse
+        vec3 diffuse = color * diff;
 
 
-        gl_FragColor = texture(DiffuseColor[0], texCoords);
+        // ambient
+        vec3 ambient = color * 0.1f;
+
+        gl_FragColor = vec4(ambient + diffuse, 1.0f);
+        
     }
 
-    
+   
     
 };

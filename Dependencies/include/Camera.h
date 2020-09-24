@@ -20,7 +20,7 @@ public:
 
         reset_camera();
 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         update_proj(window);
         update_view();

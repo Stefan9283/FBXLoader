@@ -9,10 +9,26 @@
 
 - V2 - 24 Sept 20
     - Diffuse and Normal Maps have been added
+    - Fixed lighting
 
-<img src="Screenshots/Diffuse.PNG" alt="Diffuse" width="300"/>
-<img src="Screenshots/NormalMap.PNG" alt="NormalMap" width="300"/>
-<img src="Screenshots/NormalMap_spec.PNG" alt="NormalMap_spec" width="300"/>
+<table>
+  <tr>
+    <td>Diffuse</td>
+     <td>Normal Map</td>
+     <td>Normal Map w/ specular</td>
+  </tr>
+  <tr>
+    <td><img src="Screenshots/Diffuse.PNG" width=300 height=300></td>
+    <td><img src="Screenshots/NormalMap.PNG" width=300 height=300></td>
+    <td><img src="Screenshots/NormalMap_spec.PNG" width=300 height=300></td>
+  </tr>
+ </table>
+
+<img src="Screenshots/LightSource+NormalMap.gif" alt="NormalMap_spec" width="800"/>
+
+
+
+
 
 #### To Be Added
 
@@ -23,6 +39,6 @@
 
 #### Known Bugs
 
-- Lighting seems a little off when using normal maps
+- ~~Lighting seems a little off when using normal maps~~
 
 
