@@ -26,13 +26,15 @@
 
 <img src="Screenshots/LightSource+NormalMap.gif" alt="NormalMap_spec" width="800"/>
 
-
+- V2.1 - 25 Sept 20
+    - fixed normal and tanget generation
 
 
 
 #### To Be Added
 
 - ~~Texture Loading~~
+- Materials
 - Bone Hierarchy
 - Animations
 

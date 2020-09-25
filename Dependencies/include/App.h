@@ -10,7 +10,7 @@
 
 #include "Structs.h"
 
-#define SHOWLOADEDTEXFEEDBACK false
+#define SHOWLOADEDTEXFEEDBACK true
 
 class App
 {
@@ -20,11 +20,13 @@ public:
 	Window *w;
 	std::vector<Material> Materials;
 
+	Bone* SkellyBoi;
+	std::vector<Bone*> Bones;
 	App() { 
 	
 		w = new Window;
 
-		Objects.push_back(ReadFBX("obj/cow/cow3.fbx"));
+		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
 
 	}
 

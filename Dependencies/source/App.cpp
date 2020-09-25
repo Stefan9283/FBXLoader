@@ -19,8 +19,6 @@ void fixPath(std::string* path)
 
 }
 
-
-
 void printFbxDouble3(FbxDouble3 v)
 {
     std::cout << v[0] << " " << v[1] << " " << v[2] << "\n";
@@ -294,7 +292,13 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
     //fbxsdk::FbxGeometryElementBinormal* lBinormalElement = mesh->GetElementBinormal();
 
-    if (!lTangentElement)
+    if (lNormalElement)
+    {
+        mesh->GenerateNormals(true);
+        lNormalElement = mesh->GetElementNormal();
+    }
+
+    if(!lTangentElement)
     {
         mesh->GenerateTangentsDataForAllUVSets(true);
         lTangentElement = mesh->GetElementTangent();
@@ -319,6 +323,8 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
             int lNormalIndex = 0;
             //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
+            if (!lNormalElement)
+                throw std::runtime_error("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
             if (lNormalElement->GetReferenceMode() == FbxGeometryElement::eDirect)
             {
                 lNormalIndex = lIndexByPolygonVertex;
@@ -343,24 +349,45 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
 
 
-            /// /// WIP
-            int lTangentIndex = 0;
-            //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
-            if (lTangentElement->GetReferenceMode() == FbxGeometryElement::eDirect)
-                lTangentIndex = lIndexByPolygonVertex;
+            /// /// WIP            
+            if(mesh->GetUVLayerCount())
+            { 
+                int lTangentIndex = 0;
+                if (!lTangentElement)
+                {
+                    throw std::runtime_error("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+                    assert(0);
+                }
 
-            //reference mode is index-to-direct, get normals by the index-to-direct
-            if (lTangentElement->GetReferenceMode() == FbxGeometryElement::eIndexToDirect)
-                lTangentIndex = lTangentElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
+                //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
+                if (lTangentElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+                    lTangentIndex = lIndexByPolygonVertex;
 
-            //Got normals of each polygon-vertex.
-            FbxVector4 lTangent = lTangentElement->GetDirectArray().GetAt(lTangentIndex);
-            //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
+                //reference mode is index-to-direct, get normals by the index-to-direct
+                if (lTangentElement->GetReferenceMode() == FbxGeometryElement::eIndexToDirect)
+                    lTangentIndex = lTangentElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
 
-            newVert.Tangent = glm::vec3(lTangent[0], lTangent[1], lTangent[2]);
+                //Got normals of each polygon-vertex.
+                FbxVector4 lTangent = lTangentElement->GetDirectArray().GetAt(lTangentIndex);
+                //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
 
-            /// /// WIP
- 
+                newVert.Tangent = glm::vec3(lTangent[0], lTangent[1], lTangent[2]);
+
+                /// /// WIP
+
+                int UVindex;
+
+                UVindex = lUVElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
+                FbxVector2 TextureCoords = lUVElement->GetDirectArray().GetAt(UVindex);
+
+                newVert.TextureCoords = glm::vec2(TextureCoords[0], TextureCoords[1]);
+
+            }
+            else
+            {
+                newVert.Tangent = glm::vec3(0);
+                newVert.TextureCoords = glm::vec2(0);
+            }
 
 
 
@@ -378,13 +405,8 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
 
 
-            int UVindex;
 
-
-            UVindex = lUVElement->GetIndexArray().GetAt(lIndexByPolygonVertex);
-            FbxVector2 TextureCoords = lUVElement->GetDirectArray().GetAt(UVindex);
-
-            newVert.TextureCoords = glm::vec2(TextureCoords[0], TextureCoords[1]);
+            
 
             newMesh->vertices.push_back(newVert);
 
@@ -403,10 +425,16 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
 }
 
+void addToSkellyBoi(Bone* SkellyBoi, std::vector<Bone*>* bones, FbxNode* pNode)
+{
+    std::cout << "sup " << pNode->GetName() << "\n";
+    //Bone* newBone = new Bone;
+    //newBone->name = pNode->GetName();
+}
 
 Model* App::ReadFBX(const char* path)
 {
-
+#pragma region FBX Importer
     // Change the following filename to a suitable filename value.
     const char* lFilename = path;
 
@@ -419,7 +447,6 @@ Model* App::ReadFBX(const char* path)
 
     // Create an importer using the SDK manager.
     FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
-
 
     // Use the first argument as the filename for the importer.
     if (!lImporter->Initialize(lFilename, -1, lSdkManager->GetIOSettings())) {
@@ -440,15 +467,12 @@ Model* App::ReadFBX(const char* path)
 
     // The file is imported, so get rid of the importer.
     lImporter->Destroy();
-
+#pragma endregion
 
     Model* new_model = new Model;
     std::vector<Mesh*> Meshes;
 
-
-
     FbxNode* lRootNode = lScene->GetRootNode();
-
     FbxVector4 rotation = lRootNode->GetGeometricRotation(FbxNode::eSourcePivot);
     FbxVector4 translation = lRootNode->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 scaling = lRootNode->GetGeometricScaling(FbxNode::eSourcePivot);
@@ -463,7 +487,6 @@ Model* App::ReadFBX(const char* path)
     new_model->Scaling = glm::vec3(scaling[0], scaling[1], scaling[2]);
 
 
-
     if (lRootNode)
         for (int i = 0; i < lScene->GetNodeCount(); i++)
         {
@@ -474,7 +497,11 @@ Model* App::ReadFBX(const char* path)
                 switch (attrib->GetAttributeType())
                 {
                 case FbxNodeAttribute::eMesh: new_model->meshes.push_back(getMeshData(lScene->GetNode(i))); break;
-                case FbxNodeAttribute::eSkeleton: //std::cout << lScene->GetNode(i)->GetName() <<"\n"; 
+                case FbxNodeAttribute::eSkeleton: 
+                    
+                    //addToSkellyBoi(SkellyBoi, &Bones, lScene->GetNode(i));
+                    break;
+                case FbxNodeAttribute::eNull: //std::cout << lScene->GetNode(i)->GetName() << "\n";
                     break;
                 }
             }

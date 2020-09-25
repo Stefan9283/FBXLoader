@@ -94,6 +94,10 @@ void main()
         //color
         vec3 color = texture(DiffuseColor[0], texCoords).rgb;
 
+        if (DiffuseColorCount<=0)
+            color = vec3(0.4, 0, 0.1);
+
+
         // diffuse
         vec3 diffuse = color * diff;
 

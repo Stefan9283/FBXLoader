@@ -20,3 +20,10 @@ struct Material
     glm::vec3 diff, emiss;
     float spec;
 };
+
+struct Bone
+{
+    std::string name;
+    std::vector<Bone*> children;
+    Bone* parent;
+};
