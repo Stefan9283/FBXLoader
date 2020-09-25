@@ -1,10 +1,11 @@
 #include "Mesh.h"
 
-
+#define SHOWPREPAREFEEDBACK false
 void Mesh::prepare()
 {
     assert(vertices.size() != 0);
-    std::cout << "This mesh has\n\t" << vertices.size() << " vertices\n\t" << indices.size() << " indices\n";
+    if(SHOWPREPAREFEEDBACK)
+        std::cout << "This mesh has\n\t" << vertices.size() << " vertices\n\t" << indices.size() << " indices\n";
 
     prepared = true;
     glGenVertexArrays(1, &VAO);
@@ -99,12 +100,11 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
         std::string textures_count_name;
         textures_count_name = x.first;
         textures_count_name.append("Count");
-        //std::cout << textures_count_name.c_str() << " " << x.second << "\n";
         shader->setInt(textures_count_name.c_str(), 0);
     }
         
 
-    std::cout << "\n";
+    //std::cout << "\n";
 
     shader->unbind();
 }

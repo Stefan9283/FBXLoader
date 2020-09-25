@@ -19,6 +19,32 @@ void fixPath(std::string* path)
 
 }
 
+
+
+void printFbxDouble3(FbxDouble3 v)
+{
+    std::cout << v[0] << " " << v[1] << " " << v[2] << "\n";
+}
+
+glm::vec3 FbxDouble3tovec3(FbxDouble3 v)
+{
+    return glm::vec3(v[0], v[1], v[2]);
+}
+
+int App::MaterialIsLoaded(Material m)
+{
+    for (auto i = 0; i < Materials.size(); i++)
+        if (Materials[i].diff == m.diff &&
+            Materials[i].emiss == m.emiss &&
+            Materials[i].spec == m.spec)
+            return i;
+
+    return -1;
+
+}
+
+#define SHOWTESTUREFEEDBACK false
+
 Mesh* App::getMeshData(FbxNode* pNode)
 {
 
@@ -116,8 +142,6 @@ Mesh* App::getMeshData(FbxNode* pNode)
     {
         FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)pNode->GetSrcObject<FbxSurfaceMaterial>(index);
 
-        
-
         if (material != NULL)
         {
             // NOT ANYMORE This only gets the material of type sDiffuse, you probably need to traverse all Standard Material Property by its name to get all possible textures.
@@ -125,14 +149,16 @@ Mesh* App::getMeshData(FbxNode* pNode)
             // Check if it's layeredtextures
             int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
 
-            if (layeredTextureCount)
-            {
-                std::cout << type.c_str() << "\n";
-                std::cout << "\tNum of textures: " << layeredTextureCount << "\n";
-            }
 
             if (layeredTextureCount > 0)
             {
+                if (SHOWTESTUREFEEDBACK)
+                {
+                    std::cout << type.c_str() << "\n";
+                    std::cout << "\tNum of textures: " << layeredTextureCount << "\n";
+
+                }
+                
                 for (int j = 0; j < layeredTextureCount; j++)
                 {
                     FbxLayeredTexture* layered_texture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(j));
@@ -151,8 +177,12 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
                         fixPath(&newTex.filename);
 
-                        std::cout << "\t\t" << newTex.filename.c_str() << " 1\n";
+                        
+                        if (SHOWTESTUREFEEDBACK)
+                        {
+                            std::cout << "\t\t" << newTex.filename.c_str() << " 1\n";
 
+                        }
 
 
                         int index = isAlreadyLoaded(newTex);
@@ -171,7 +201,7 @@ Mesh* App::getMeshData(FbxNode* pNode)
 
                 // Directly get textures
                 int textureCount = prop.GetSrcObjectCount<FbxTexture>();
-                if (textureCount)
+                if (SHOWTESTUREFEEDBACK && textureCount)
                 {
                     std::cout << type.c_str() << "\n";
                     std::cout << "\tNum of textures: " << textureCount << "\n";
@@ -192,7 +222,8 @@ Mesh* App::getMeshData(FbxNode* pNode)
                     
                     fixPath(&newTex.filename);
 
-                    std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
+                    if(SHOWTESTUREFEEDBACK)
+                        std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
 
 
                     int index = isAlreadyLoaded(newTex);
@@ -210,8 +241,50 @@ Mesh* App::getMeshData(FbxNode* pNode)
     }
 #pragma endregion
 
+#pragma region MATERIAL
+    Material material;
+
+    FbxSurfacePhong* phong_material = (FbxSurfacePhong*)pNode->GetSrcObject<FbxSurfacePhong>(0);
+
+    FbxDouble3 diff = phong_material->Diffuse.Get(); //Kd
+    //printFbxDouble3(diff);
+
+    FbxDouble3 emiss = phong_material->Emissive.Get(); //Ke
+    //printFbxDouble3(emiss);
+
+    FbxDouble specf = phong_material->SpecularFactor.Get(); // spec - half of what Blender sees
+    //std::cout << specf << "\n";
+    /*
+    FbxDouble3 disp = phong_material->DisplacementColor.Get();
+    printFbxDouble3(disp);
+
+    FbxDouble3 amb = phong_material->Ambient.Get();
+    printFbxDouble3(amb);
     
+    FbxDouble3 bump = phong_material->Bump.Get();
+    printFbxDouble3(bump);
+   
+    FbxDouble3 spec = phong_material->Specular.Get();
+    printFbxDouble3(spec);
+   
+    FbxDouble3 ref = phong_material->Reflection.Get();
+    printFbxDouble3(ref);
+    */
     
+    material.diff = FbxDouble3tovec3(diff);
+    material.emiss = FbxDouble3tovec3(emiss);
+    material.spec = (float)specf;
+
+    int matIndex= MaterialIsLoaded(material);
+    if (matIndex == -1)
+    {
+        newMesh->matIndex = Materials.size();
+        Materials.push_back(material);
+    }
+    else newMesh->matIndex = matIndex;
+#pragma endregion
+
+
 #pragma region VERTICES
     int currentIndex = 0;
 

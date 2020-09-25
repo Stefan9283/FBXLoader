@@ -52,6 +52,10 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
+        glfwWindowHint(GLFW_SAMPLES, 8);
+        glEnable(GL_MULTISAMPLE);
+
+
     }
 
     ~Window()

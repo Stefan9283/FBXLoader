@@ -14,3 +14,9 @@ struct Texture
     std::string filename, type;
     unsigned int id;
 };
+
+struct Material
+{
+    glm::vec3 diff, emiss;
+    float spec;
+};

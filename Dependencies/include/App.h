@@ -10,9 +10,7 @@
 
 #include "Structs.h"
 
-
-
-
+#define SHOWLOADEDTEXFEEDBACK false
 
 class App
 {
@@ -20,13 +18,13 @@ public:
 	std::vector<Texture> LoadedTextures;
 	std::vector<Model*> Objects;
 	Window *w;
-
+	std::vector<Material> Materials;
 
 	App() { 
 	
 		w = new Window;
 
-		Objects.push_back(ReadFBX("obj/helmet.fbx"));
+		Objects.push_back(ReadFBX("obj/cow/cow3.fbx"));
 
 	}
 
@@ -55,15 +53,19 @@ public:
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
-		angular_vel = 1;
+		angular_vel = 100;
 
 		Model* light = ReadFBX("obj/helmet.fbx"); ///////////
-		std::cout << "Textures that should be loaded\n";
-		for (auto i = 0; i < LoadedTextures.size(); i++)
-		{
-			LoadedTextures[i].id = TextureFromFile(LoadedTextures[i].filename.c_str());
-			std::cout << "\t" << LoadedTextures[i].filename.c_str() << " id:" << LoadedTextures[i].id << "\n";
-		}
+
+		if (SHOWLOADEDTEXFEEDBACK)
+			std::cout << "Textures that should be loaded\n";
+			for (auto i = 0; i < LoadedTextures.size(); i++)
+			{
+				LoadedTextures[i].id = TextureFromFile(LoadedTextures[i].filename.c_str());
+				if (SHOWLOADEDTEXFEEDBACK)
+					std::cout << "\t" << LoadedTextures[i].filename.c_str() << " id:" << LoadedTextures[i].id << "\n";
+			}
+		
 		std::chrono::high_resolution_clock::time_point start, end;
 		start = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration;
@@ -101,9 +103,6 @@ public:
 			if (glfwGetKey(w->window, GLFW_KEY_ESCAPE))
 				break;
 
-
-
-
 		}
 		delete light;
 		ImGui::DestroyContext();
@@ -112,10 +111,13 @@ public:
 		delete shader;
 
 	}
+	
 	float angular_vel;
 	ImVec4 clear_color;
 	ImVec4 rgb_ls;
 	float strength;
+
+	int MaterialIsLoaded(Material m);
 
 	glm::mat4 orbit(double time)
 	{

@@ -13,6 +13,7 @@ public:
     std::vector<unsigned int> indices;
     std::vector<unsigned int> texIndices;
     bool prepared;
+    unsigned int matIndex;
 
     void Mesh::prepare();
     void Mesh::Draw(Shader* shader, std::vector<Texture> *textures);
