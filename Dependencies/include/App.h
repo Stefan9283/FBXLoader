@@ -195,6 +195,7 @@ public:
 							ImGui::SliderFloat("ry", &OrbLights[i]->body->axis_rotations.y, -90, 90);
 							ImGui::SliderFloat("rz", &OrbLights[i]->body->axis_rotations.z, -90, 90);
 							ImGui::SliderFloat("angular velocity", &OrbLights[i]->angularVel, -90, 90);
+							ImGui::SliderFloat("radius", &OrbLights[i]->radius, -90, 90);
 							OrbLights[i]->color = glm::vec3(rgb_ls.x, rgb_ls.y, rgb_ls.z);
 							ImGui::End();
 						}
