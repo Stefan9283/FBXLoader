@@ -17,7 +17,7 @@ struct Texture
 
 struct Material
 {
-    glm::vec3 diff, emiss;
+    glm::vec3 amb, diff, emiss;
     float spec;
 };
 

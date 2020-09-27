@@ -36,11 +36,15 @@ void Mesh::prepare()
 
 #define MAX_NUM_OF_TEXTURES 3
 
-void Mesh::Draw(Shader* shader, std::vector<Texture> *textures)
+void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials)
 {
 
     shader->setMat4("mesh_model", &Transform);
 
+    shader->setVec3("material.diffuse", (*materials)[matIndex].diff);
+    shader->setVec3("material.emissive", (*materials)[matIndex].emiss);
+    shader->setVec3("material.ambient", (*materials)[matIndex].amb);
+    shader->setFloat("material.specular", (*materials)[matIndex].spec);
     std::unordered_map<std::string, int> count;
 
 

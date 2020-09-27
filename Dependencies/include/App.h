@@ -1,6 +1,7 @@
 #pragma once
 
 #define STB_IMAGE_IMPLEMENTATION
+#define SHOWLOADEDTEXFEEDBACK false
 
 #include "Common.h"
 #include "Model.h"
@@ -10,23 +11,25 @@
 
 #include "Structs.h"
 
-#define SHOWLOADEDTEXFEEDBACK true
 
 class App
 {
 public:
 	std::vector<Texture> LoadedTextures;
 	std::vector<Model*> Objects;
-	Window *w;
+	Window w;
 	std::vector<Material> Materials;
 
 	Bone* SkellyBoi;
 	std::vector<Bone*> Bones;
 	App() { 
 	
-		w = new Window;
-
-		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
+		SkellyBoi = NULL;
+		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		strength = 100000.0f;
+		angular_vel = 100;
+		Objects.push_back(ReadFBX("obj/ROBOT0.fbx"));
 
 	}
 
@@ -34,7 +37,6 @@ public:
 	{
 		for(auto obj : Objects)
 			delete obj;
-		delete w;
 	}
 
 	void Run()
@@ -44,18 +46,19 @@ public:
 
 		
 
-		Camera cam(w->window);
+		Camera cam(w.window);
 
 
 		ImGui::CreateContext();
-		ImGui_ImplGlfw_InitForOpenGL(w->window, true);
+		ImGui_ImplGlfw_InitForOpenGL(w.window, true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 		ImGui::StyleColorsDark();
 
-		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		strength = 100000.0f;
-		angular_vel = 100;
+		/*std::cout << Materials.size() << "\n";
+		for (auto mat : Materials)
+			std::cout << glm::to_string(mat.diff) << " " 
+				<< glm::to_string(mat.diff) << " " << mat.spec << "\n";*/
+		
 
 		Model* light = ReadFBX("obj/helmet.fbx"); ///////////
 
@@ -71,12 +74,12 @@ public:
 		std::chrono::high_resolution_clock::time_point start, end;
 		start = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration;
-		while (!glfwWindowShouldClose(w->window))
+		while (!glfwWindowShouldClose(w.window))
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			cam.Move(w->window);
-			cam.update_proj(w->window);
+			cam.Move(w.window);
+			cam.update_proj(w.window);
 			shader->setMat4("view", cam.getviewmatrix());
 			shader->setMat4("proj", cam.getprojmatrix());
 			shader->setVec3("cameraPos", cam.position);
@@ -92,17 +95,17 @@ public:
 			glm::vec3 croppedLightPos = glm::vec3(LightPos);
 			shader->setVec3("LightPos", croppedLightPos);
 
-			light->Draw(shader, &LoadedTextures, orbitTransform);
+			light->Draw(shader, &LoadedTextures, &Materials, orbitTransform);
 
 			for (auto obj : Objects)
-				obj->Draw(shader, &LoadedTextures);
+				obj->Draw(shader, &LoadedTextures, &Materials);
 
 			DisplayIMGUI();
 
-			glfwSwapBuffers(w->window);
+			glfwSwapBuffers(w.window);
 			glfwPollEvents();
 			
-			if (glfwGetKey(w->window, GLFW_KEY_ESCAPE))
+			if (glfwGetKey(w.window, GLFW_KEY_ESCAPE))
 				break;
 
 		}
@@ -119,8 +122,8 @@ public:
 	ImVec4 rgb_ls;
 	float strength;
 
-	int MaterialIsLoaded(Material m);
 
+	// For dynamic lighting purposes
 	glm::mat4 orbit(double time)
 	{
 		glm::mat4 T, R;
@@ -129,6 +132,7 @@ public:
 		return R * T;
 	}
 
+	// Debug/Testing GUI
 	void DisplayIMGUI()
 	{
 
@@ -190,7 +194,12 @@ public:
 
 	}
 
-	
+	// Model Reading
+	Mesh* App::getMeshData(FbxMesh* mesh, int material_index);
+	void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes);
+	Model* ReadFBX(const char* path);
+
+	// Tex/Mat Funcs
 	unsigned int TextureFromFile(const char* name)
 	{
 		unsigned int texture_id = 0;
@@ -225,8 +234,10 @@ public:
 
 		return texture_id;
 	}
-	int App::isAlreadyLoaded(Texture tex);
+	int App::TexturelIsLoaded(Texture tex);
+	int MaterialIsLoaded(Material m);
 
-	Model* ReadFBX(const char* path);
-	Mesh* getMeshData(FbxNode* pNode);
+
+	// LEGACY FUNC
+	Mesh* extractNodeMesh(FbxNode* pNode);
 };

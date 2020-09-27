@@ -16,7 +16,7 @@ public:
     glm::vec3 axis_rotations, old_axis_rotations;
     glm::mat4 getModelMatrix();
 
-    void Model::Draw(Shader* shader, std::vector<Texture> *textures, glm::mat4 additionanTransform = glm::mat4(1));
+    void Model::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
 
     Model();
     ~Model();

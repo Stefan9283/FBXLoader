@@ -11,30 +11,35 @@
     - Diffuse and Normal Maps have been added
     - Fixed lighting
 
-<table>
-  <tr>
-    <td>Diffuse</td>
-     <td>Normal Map</td>
-     <td>Normal Map w/ specular</td>
-  </tr>
-  <tr>
-    <td><img src="Screenshots/Diffuse.PNG" width=300 height=300></td>
-    <td><img src="Screenshots/NormalMap.PNG" width=300 height=300></td>
-    <td><img src="Screenshots/NormalMap_spec.PNG" width=300 height=300></td>
-  </tr>
- </table>
+  <table>
+    <tr>
+      <td>Diffuse</td>
+      <td>Normal Map</td>
+      <td>Normal Map w/ specular</td>
+    </tr>
+    <tr>
+      <td><img src="Screenshots/Diffuse.PNG" width=300 height=300></td>
+      <td><img src="Screenshots/NormalMap.PNG" width=300 height=300></td>
+      <td><img src="Screenshots/NormalMap_spec.PNG" width=300 height=300></td>
+    </tr>
+  </table>
 
-<img src="Screenshots/LightSource+NormalMap.gif" alt="NormalMap_spec" width="800"/>
+  <img src="Screenshots/LightSource+NormalMap.gif" alt="NormalMap_spec" width="800"/>
 
 - V2.1 - 25 Sept 20
     - fixed normal and tanget generation
+
+- V2.2 - 27 Sept 20
+    - object with multiple materials per mesh and no textures can now be loaded
+
+    -<img src="Screenshots/Materials.PNG" alt="Materials" width="800"/>
 
 
 
 #### To Be Added
 
 - ~~Texture Loading~~
-- Materials
+- ~~Materials~~
 - Bone Hierarchy
 - Animations
 

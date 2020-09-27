@@ -1,0 +1,126 @@
+OpenGL was initialized just fine
+phong surfaces 2
+Hand.R vec3(0.737911, 0.364143, 0.047922)
+
+816
+phong surfaces 2
+Arm.R vec3(0.737911, 0.364143, 0.047922)
+
+318
+phong surfaces 2
+Shoulder.R vec3(0.737911, 0.364143, 0.047922)
+
+366
+phong surfaces 2
+Hand.L vec3(0.737911, 0.364143, 0.047922)
+
+816
+phong surfaces 3
+Head vec3(0.737911, 0.364143, 0.047922)
+
+2430
+phong surfaces 2
+Arm.L vec3(0.737911, 0.364143, 0.047922)
+
+324
+phong surfaces 2
+Shoulder.L vec3(0.737911, 0.364143, 0.047922)
+
+366
+phong surfaces 2
+Torso vec3(0.737911, 0.364143, 0.047922)
+
+2610
+phong surfaces 2
+Leg.R vec3(0.737911, 0.364143, 0.047922)
+
+294
+phong surfaces 2
+LowerLeg.R vec3(0.737911, 0.364143, 0.047922)
+
+438
+phong surfaces 2
+Foot.R vec3(0.737911, 0.364143, 0.047922)
+
+102
+phong surfaces 2
+Foot.L vec3(0.737911, 0.364143, 0.047922)
+
+99
+phong surfaces 2
+LowerLeg.L vec3(0.737911, 0.364143, 0.047922)
+
+438
+phong surfaces 2
+Leg.L vec3(0.737911, 0.364143, 0.047922)
+
+294
+phong surfaces 1
+Low vec3(0.800000, 0.800000, 0.800000)
+
+14652
+Textures that should be loaded
+        D:/GIT/FBXLoader/obj/helmet.fbm/Low_DefaultMaterial_BaseColor.png id:1
+        D:/GIT/FBXLoader/obj/helmet.fbm/Low_DefaultMaterial_Normal.png id:2
+        D:/GIT/FBXLoader/obj/helmet.fbm/Low_DefaultMaterial_Metallic.png id:3
+        D:/GIT/FBXLoader/obj/helmet.fbm/Low_DefaultMaterial_Roughness.png id:4
+
+RootNode
+        RobotArmature 1
+                Bone 3
+                        Foot.L 3
+                                Foot.L 4
+                        Body 3
+                                Torso 4
+                                Hips 3
+                                        Abdomen 3
+                                                Torso 3
+                                                        Neck 3
+                                                                Head 3
+                                                                        Head 4
+                                                        Shoulder.L 3
+                                                                Shoulder.L 4
+                                                                UpperArm.L 3
+                                                                        Arm.L 4
+                                                                        LowerArm.L 3
+                                                                                Palm2.L 3
+                                                                                        Middle1.L 3
+                                                                                                Middle2.L 3
+                                                                                Thumb.L 3
+                                                                                        Thumb2.L 3
+                                                                                Palm1.L 3
+                                                                                        Index.L 3
+                                                                                                Index2.L 3
+                                                                                Palm3.L 3
+                                                                                        Ring1.L 3
+                                                                                                Ring2.L 3
+                                                        Shoulder.R 3
+                                                                Shoulder.R 4
+                                                                UpperArm.R 3
+                                                                        Arm.R 4
+                                                                        LowerArm.R 3
+                                                                                Palm2.R 3
+                                                                                        Middle1.R 3
+                                                                                                Middle2.R 3
+                                                                                Thumb.R 3
+                                                                                        Thumb2.R 3
+                                                                                Palm1.R 3
+                                                                                        Index.R 3
+                                                                                                Index2.R 3
+                                                                                Palm3.R 3
+                                                                                        Ring1.R 3
+                                                                                                Ring2.R 3
+                                UpperLeg.L 3
+                                        Leg.L 4
+                                        LowerLeg.L 3
+                                                LowerLeg.L 4
+                                UpperLeg.R 3
+                                        Leg.R 4
+                                        LowerLeg.R 3
+                                                LowerLeg.R 4
+                        PoleTarget.L 3
+                        Foot.R 3
+                                Foot.R 4
+                        PoleTarget.R 3
+        Hand.R 4
+        Hand.L 4

@@ -1,0 +1,212 @@
+Anim
+Foot.L vec3(0.467197, 0.464126, 0.418706) 
+Torso vec3(0.737911, 0.364143, 0.047922)
+Torso vec3(0.467197, 0.464126, 0.418706)
+Head vec3(0.467197, 0.464126, 0.418706)
+Head vec3(0.737911, 0.364143, 0.047922)
+Head vec3(0.057805, 0.057805, 0.057805)
+Shoulder.L vec3(0.737911, 0.364143, 0.047922)
+Arm.L vec3(0.737911, 0.364143, 0.047922)
+Shoulder.R vec3(0.737911, 0.364143, 0.047922)
+Arm.R vec3(0.737911, 0.364143, 0.047922)
+Leg.L vec3(0.737911, 0.364143, 0.047922)
+LowerLeg.L vec3(0.737911, 0.364143, 0.047922)
+Leg.R vec3(0.737911, 0.364143, 0.047922)
+LowerLeg.R vec3(0.737911, 0.364143, 0.047922)
+Foot.R vec3(0.467197, 0.464126, 0.418706)
+Hand.R vec3(0.737911, 0.364143, 0.047922)
+Hand.R vec3(0.467197, 0.464126, 0.418706)
+Hand.L vec3(0.737911, 0.364143, 0.047922)
+Hand.L vec3(0.467197, 0.464126, 0.418706)
+
+FBX
+Hand.R vec3(0.737911, 0.364143, 0.047922)
+Arm.R vec3(0.737911, 0.364143, 0.047922)
+Shoulder.R vec3(0.737911, 0.364143, 0.047922)
+Hand.L vec3(0.737911, 0.364143, 0.047922)
+Head vec3(0.737911, 0.364143, 0.047922)
+Arm.L vec3(0.737911, 0.364143, 0.047922)
+Shoulder.L vec3(0.737911, 0.364143, 0.047922)
+Torso vec3(0.737911, 0.364143, 0.047922)
+Leg.R vec3(0.737911, 0.364143, 0.047922)
+LowerLeg.R vec3(0.737911, 0.364143, 0.047922)
+Foot.R vec3(0.737911, 0.364143, 0.047922)
+Foot.L vec3(0.737911, 0.364143, 0.047922)
+LowerLeg.L vec3(0.737911, 0.364143, 0.047922)
+Leg.L vec3(0.737911, 0.364143, 0.047922)
+Low vec3(0.800000, 0.800000, 0.800000)
+
+<node name='RobotArmature' translation='(0.000000, 0.000000, 0.000000)' rotation='(-90.000009, 0.000000, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+        <attribute type='null' name='RobotArmature'/>
+        <node name='Bone' translation='(-0.003195, 0.195048, -0.005885)' rotation='(90.000009, -0.000000, 0.000027)' scaling='(1.000000, 1.000000, 1.000000)'>
+                <attribute type='skeleton' name='Bone'/>
+                <node name='Foot.L' translation='(0.636722, 0.030579, 0.057015)' rotation='(88.142061, 0.000010, 179.999991)' scaling='(1.000000, 1.000000, 1.000000)'>
+                        <attribute type='skeleton' name='Foot.L'/>
+                        <node name='Foot.L' translation='(0.009469, 0.316883, 0.383445)' rotation='(-1.857951, -0.000012, 179.999978)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                <attribute type='mesh' name='Cylinder.014'/>
+                        </node>
+                </node>
+                <node name='Body' translation='(0.005246, 1.396999, 0.307720)' rotation='(0.000000, 0.000014, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+                        <attribute type='skeleton' name='Body'/>
+                        <node name='Torso' translation='(-0.004766, 0.801258, -0.132253)' rotation='(-90.000009, -0.000041, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                <attribute type='mesh' name='Cube.001'/>
+                        </node>
+                        <node name='Hips' translation='(-0.002050, -0.096575, -0.112672)' rotation='(-13.663600, -0.000031, -0.000002)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                <attribute type='skeleton' name='Hips'/>
+                                <node name='Abdomen' translation='(0.000000, 0.328792, -0.000000)' rotation='(13.226303, 0.000049, 0.000014)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                        <attribute type='skeleton' name='Abdomen'/>
+                                        <node name='Torso' translation='(-0.000000, 0.484584, -0.000000)' rotation='(6.681592, -0.000095, -0.000004)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                <attribute type='skeleton' name='Torso'/>
+                                                <node name='Neck' translation='(-0.000000, 0.584088, -0.000000)' rotation='(-5.017979, -1.482244, 3.310595)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                        <attribute type='skeleton' name='Neck'/>
+                                                        <node name='Head' translation='(0.000000, 0.309866, -0.000000)' rotation='(-3.637956, -2.125592, -0.093499)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                <attribute type='skeleton' name='Head'/>
+                                                                <node name='Head' translation='(-0.000896, 0.647622, 0.036397)' rotation='(-91.075163, 0.003231, -0.160825)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                        <attribute type='mesh' name='Cylinder'/>
+                                                                </node>
+                                                        </node>
+                                                </node>
+                                                <node name='Shoulder.L' translation='(0.582738, 0.296720, 0.032441)' rotation='(5.696080, -2.562548, -155.855273)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                        <attribute type='skeleton' name='Shoulder.L'/>
+                                                        <node name='Shoulder.L' translation='(-0.000381, -0.000983, -0.004151)' rotation='(-90.000112, -0.000017, 91.486224)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                <attribute type='mesh' name='Cylinder.008'/>
+                                                        </node>
+                                                        <node name='UpperArm.L' translation='(-0.000000, 0.084036, 0.000000)' rotation='(-76.377320, -79.689791, 77.567446)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                <attribute type='skeleton' name='UpperArm.L'/>
+                                                                <node name='Arm.L' translation='(0.035146, -0.667810, -0.075934)' rotation='(3.864264, -0.748496, 93.497059)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                        <attribute type='mesh' name='Cylinder.010'/>
+                                                                </node>
+                                                                <node name='LowerArm.L' translation='(0.000000, 0.657292, 0.000000)' rotation='(15.066364, 71.328717, -42.782464)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                        <attribute type='skeleton' name='LowerArm.L'/>
+                                                                        <node name='Palm2.L' translation='(0.000000, 1.368200, -0.000000)' rotation='(-0.582453, 0.511480, -37.998337)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm2.L'/>
+                                                                                <node name='Middle1.L' translation='(-0.000000, 0.371198, -0.000000)' rotation='(-1.930950, 1.996036, -67.074479)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Middle1.L'/>
+                                                                                        <node name='Middle2.L' translation='(0.000000, 0.189367, 0.000000)' rotation='(-3.196691, -2.980498, -88.797240)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Middle2.L'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Thumb.L' translation='(0.084174, 1.257474, 0.189778)' rotation='(151.706971, -7.624532, 84.002249)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Thumb.L'/>
+                                                                                <node name='Thumb2.L' translation='(-0.000000, 0.136673, 0.000000)' rotation='(84.804018, -9.566078, -126.226131)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Thumb2.L'/>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Palm1.L' translation='(0.000000, 1.368200, -0.000000)' rotation='(32.577540, 38.469268, -15.057862)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm1.L'/>
+                                                                                <node name='Index.L' translation='(-0.000000, 0.422427, -0.000000)' rotation='(37.982190, -30.113133, -90.516215)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Index.L'/>
+                                                                                        <node name='Index2.L' translation='(-0.000000, 0.189367, -0.000000)' rotation='(-2.011545, -4.922957, -88.882556)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Index2.L'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Palm3.L' translation='(0.000000, 1.368200, -0.000000)' rotation='(-39.770375, -44.479616, -6.861019)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm3.L'/>
+                                                                                <node name='Ring1.L' translation='(0.000000, 0.426206, -0.000000)' rotation='(-51.248521, 33.192653, -100.261863)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Ring1.L'/>
+                                                                                        <node name='Ring2.L' translation='(0.000000, 0.189367, -0.000000)' rotation='(-2.011560, -4.922951, -88.882556)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Ring2.L'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                </node>
+                                                        </node>
+                                                </node>
+                                                <node name='Shoulder.R' translation='(-0.636816, 0.296747, 0.032439)' rotation='(5.612818, 2.740747, 154.054999)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                        <attribute type='skeleton' name='Shoulder.R'/>
+                                                        <node name='Shoulder.R' translation='(0.000352, -0.000332, -0.004151)' rotation='(-89.999934, 0.000014, -90.564859)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                <attribute type='mesh' name='Cylinder.009'/>
+                                                        </node>
+                                                        <node name='UpperArm.R' translation='(0.000000, 0.102178, 0.000000)' rotation='(-25.733960, 109.349136, -24.590938)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                <attribute type='skeleton' name='UpperArm.R'/>
+                                                                <node name='Arm.R' translation='(-0.007941, 0.334940, -0.004726)' rotation='(15.296542, 1.627029, -93.434549)' scaling='(0.227041, 0.227041, 0.227041)'>
+                                                                        <attribute type='mesh' name='Cylinder.013'/>
+                                                                </node>
+                                                                <node name='LowerArm.R' translation='(0.000000, 0.575238, 0.000000)' rotation='(87.558886, -104.014676, -59.124091)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                        <attribute type='skeleton' name='LowerArm.R'/>
+                                                                        <node name='Palm2.R' translation='(-0.000000, 1.379717, -0.000000)' rotation='(-6.850362, -6.707740, 38.258666)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm2.R'/>
+                                                                                <node name='Middle1.R' translation='(-0.000000, 0.371198, 0.000000)' rotation='(-4.883003, 1.622588, 63.350612)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Middle1.R'/>
+                                                                                        <node name='Middle2.R' translation='(-0.000000, 0.189367, -0.000000)' rotation='(1.193406, -5.878487, 60.656028)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Middle2.R'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Thumb.R' translation='(-0.116364, 1.269000, 0.171936)' rotation='(125.885673, -2.665502, -81.129472)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Thumb.R'/>
+                                                                                <node name='Thumb2.R' translation='(-0.000000, 0.136673, -0.000000)' rotation='(97.023732, -15.902046, -145.019246)' scaling='(1.000000, 1.000001, 1.000001)'>
+                                                                                        <attribute type='skeleton' name='Thumb2.R'/>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Palm1.R' translation='(-0.000000, 1.379717, -0.000000)' rotation='(-64.188096, 110.780935, -22.732886)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm1.R'/>
+                                                                                <node name='Index.R' translation='(0.000000, 0.422427, 0.000000)' rotation='(-101.966023, -35.917581, 67.907633)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Index.R'/>
+                                                                                        <node name='Index2.R' translation='(0.000000, 0.189367, -0.000000)' rotation='(-4.806026, 1.358680, 63.648607)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Index2.R'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                        <node name='Palm3.R' translation='(-0.000000, 1.379717, -0.000000)' rotation='(47.462288, -137.570323, -4.086905)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                <attribute type='skeleton' name='Palm3.R'/>
+                                                                                <node name='Ring1.R' translation='(0.000000, 0.426206, 0.000000)' rotation='(108.646071, 31.312446, 64.979271)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                        <attribute type='skeleton' name='Ring1.R'/>
+                                                                                        <node name='Ring2.R' translation='(-0.000000, 0.189367, 0.000000)' rotation='(15.640722, -4.237912, 50.525672)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                                                                                <attribute type='skeleton' name='Ring2.R'/>
+                                                                                        </node>
+                                                                                </node>
+                                                                        </node>
+                                                                </node>
+                                                        </node>
+                                                </node>
+                                        </node>
+                                </node>
+                        </node>
+                        <node name='UpperLeg.L' translation='(0.628246, 0.096226, -0.182561)' rotation='(160.483463, 9.865570, 0.590776)' scaling='(1.000000, 1.000000, 0.999994)'>
+                                <attribute type='skeleton' name='UpperLeg.L'/>
+                                <node name='Leg.L' translation='(-0.006740, 0.332479, -0.002869)' rotation='(102.080019, -0.348227, 0.042598)' scaling='(1.000000, 0.999993, 1.000000)'>
+                                        <attribute type='mesh' name='Cylinder.011'/>
+                                </node>
+                                <node name='LowerLeg.L' translation='(-0.000000, 0.611007, 0.000000)' rotation='(36.646519, 0.000016, -0.000003)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                        <attribute type='skeleton' name='LowerLeg.L'/>
+                                        <node name='LowerLeg.L' translation='(-0.006818, 0.498980, -0.252089)' rotation='(79.014579, -0.303703, 0.175623)' scaling='(1.000000, 0.999993, 1.000000)'>
+                                                <attribute type='mesh' name='Cylinder.012'/>
+                                        </node>
+                                </node>
+                        </node>
+                        <node name='UpperLeg.R' translation='(-0.645357, 0.096226, -0.182562)' rotation='(160.551724, -16.053455, -0.641648)' scaling='(1.000000, 0.999999, 0.999994)'>
+                                <attribute type='skeleton' name='UpperLeg.R'/>
+                                <node name='Leg.R' translation='(0.005345, 0.332518, 0.006209)' rotation='(100.240068, -0.349851, 0.045745)' scaling='(1.000000, 0.999974, 1.000000)'>
+                                        <attribute type='mesh' name='Cylinder.019'/>
+                                </node>
+                                <node name='LowerLeg.R' translation='(0.000000, 0.611007, 0.000000)' rotation='(36.646509, -0.000036, -0.000006)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                        <attribute type='skeleton' name='LowerLeg.R'/>
+                                        <node name='LowerLeg.R' translation='(0.004708, 0.499001, -0.251994)' rotation='(79.010734, -0.309516, 0.169320)' scaling='(1.000000, 0.999973, 1.000001)'>
+                                                <attribute type='mesh' name='Cylinder.018'/>
+                                        </node>
+                                </node>
+                        </node>
+                </node>
+                <node name='PoleTarget.L' translation='(0.913523, 1.058084, 1.709488)' rotation='(0.000000, 0.000014, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+                        <attribute type='skeleton' name='PoleTarget.L'/>
+                </node>
+                <node name='Foot.R' translation='(-0.636881, 0.030579, 0.057014)' rotation='(88.142061, 0.000007, 179.999909)' scaling='(1.000000, 1.000000, 1.000000)'>
+                        <attribute type='skeleton' name='Foot.R'/>
+                        <node name='Foot.R' translation='(-0.002078, 0.316883, 0.383445)' rotation='(-1.857944, -0.000094, 179.999978)' scaling='(1.000000, 1.000000, 1.000000)'>
+                                <attribute type='mesh' name='Cylinder.017'/>
+                        </node>
+                </node>
+                <node name='PoleTarget.R' translation='(-1.100912, 1.058084, 1.709487)' rotation='(0.000000, 0.000014, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+                        <attribute type='skeleton' name='PoleTarget.R'/>
+                </node>
+        </node>
+</node>
+<node name='Hand.R' translation='(-0.002716, 2.370297, -0.020994)' rotation='(-90.000009, 0.000000, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+        <attribute type='mesh' name='Cylinder.015'/>
+</node>
+<node name='Hand.L' translation='(-0.002716, 2.370297, -0.020994)' rotation='(-90.000009, 0.000000, 0.000000)' scaling='(1.000000, 1.000000, 1.000000)'>
+        <attribute type='mesh' name='Cylinder.022'/>
+</node>

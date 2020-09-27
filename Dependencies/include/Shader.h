@@ -45,6 +45,11 @@ public:
         bind();
         glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
+    void setFloat(const std::string& name, const float value)
+    {
+        bind();
+        glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    }
 
     Shader(const char* filepath_v, const char* filepath_f)  // new version
     {

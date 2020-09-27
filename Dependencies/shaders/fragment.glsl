@@ -34,6 +34,13 @@ uniform int ReflectionFactorCount;
 uniform sampler2D ShininessExponent[3];
 uniform int ShininessExponentCount;
 
+struct Material
+{
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 emissive;
+    float specular;
+};
 
 in vec3 Norm;
 in vec3 FragPos;
@@ -42,6 +49,8 @@ in vec2 texCoords;
 in vec3 debug_color;
 
 uniform vec3 LightPos;
+
+uniform Material material;
 
 void main()
 {
@@ -90,20 +99,30 @@ void main()
         float diff = max(dot(norm, lightDir), 0.0);
 
         //vec3 reflectDir = reflect(-lightDir, norm);
+
+
+        vec3 color;
+        vec3 diffuse;
+        vec3 ambient;
+        if (DiffuseColorCount <= 0)
+        {
+            color = material.diffuse;
+            diffuse = color * diff;
+            ambient = 0.1f * material.ambient;
+        }
+        else
+        {
+            color = texture(DiffuseColor[0], texCoords).rgb;
+            diffuse = color * diff;
+            ambient = 0.1f * color;
+        }
         
-        //color
-        vec3 color = texture(DiffuseColor[0], texCoords).rgb;
 
-        if (DiffuseColorCount<=0)
-            color = vec3(0.4, 0, 0.1);
-
-
-        // diffuse
-        vec3 diffuse = color * diff;
-
-
+        
+        //vec3 ambient = light.ambient * material.diffuse;
+        //vec3 diffuse = light.diffuse * diff * material.diffuse;
         // ambient
-        vec3 ambient = color * 0.1f;
+        
 
         gl_FragColor = vec4(ambient + diffuse, 1.0f);
         
