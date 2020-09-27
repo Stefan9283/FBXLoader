@@ -30,9 +30,9 @@
     - fixed normal and tanget generation
 
 - V2.2 - 27 Sept 20
-    - object with multiple materials per mesh and no textures can now be loaded
+    - objects with multiple materials per mesh and no textures can now be loaded
 
-    -<img src="Screenshots/Materials.PNG" alt="Materials" width="800"/>
+    <img src="Screenshots/Materials.PNG" alt="Materials" width="800"/>
 
 
 
