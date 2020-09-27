@@ -431,12 +431,13 @@ void printNode(FbxNode* node, int level = 0)
 {
     addTabs(level);            std::cout << node->GetName();
 
-    std::cout << " " << node->GetNodeAttributeCount() << "\n";
+    std::cout << " " << node->GetNodeAttributeCount() << ": ";
     for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
     {
-        FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
-    }
+        std::cout << node->GetNodeAttributeByIndex(i)->GetAttributeType() << " ";;
 
+    }
+    std::cout << "\n";
     /*
     for (auto j = 0; j < node->GetNodeAttributeCount(); j++)
     {
@@ -653,7 +654,6 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
 {
 
-
     bool hasMeshes = false;
 
     for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
@@ -857,12 +857,16 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
         }
 #pragma endregion
 #pragma region MESH
+
+        unsigned int meshIndex = 0;
+
         for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
         {
             FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
             if (nodeAttrib->GetAttributeType() == 4)
             {
-                meshes->push_back(getMeshData(nodeAttrib, i));
+                meshes->push_back(getMeshData(nodeAttrib, meshIndex));
+                meshIndex++;
                 (*meshes)[meshes->size() - 1]->Transform = transform_matrix;
                 
                 for (auto j = 0; j < textureIndices.size(); j++)
@@ -951,6 +955,8 @@ Model* App::ReadFBX(const char* path)
 
     FbxGeometryConverter converter(lSdkManager);
     
+    
+    converter.RemoveBadPolygonsFromMeshes(lScene);
     if (!converter.SplitMeshesPerMaterial(lScene, true))
     {
         std::cout << "Failed to split by materials\n";
@@ -987,7 +993,8 @@ Model* App::ReadFBX(const char* path)
     new_model->Scaling = glm::vec3(scaling[0], scaling[1], scaling[2]);
 #pragma endregion 
 
-
+    //printNode(lScene->GetRootNode());
+    
     recursiveReadMeshes(lScene->GetRootNode(), &new_model->meshes);
 
     //LEGACY LOADING - Models won't have multiple materials on the same mesh

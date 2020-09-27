@@ -48,7 +48,15 @@ public:
         glfwGetWindowSize(window, &width, &height);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-        glClearColor(0.5f, 0.8f, 0.8f, 1.0f);
+        srand((unsigned)time(NULL));
+
+        glm::vec3 clearColor;
+        clearColor.x = (float)rand() / RAND_MAX;
+        clearColor.y = (float)rand() / RAND_MAX;
+        clearColor.z = (float)rand() / RAND_MAX;
+
+
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);

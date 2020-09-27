@@ -10,26 +10,28 @@
 #include "Camera.h"
 
 #include "Structs.h"
-
+#include "LightSources.h"
 
 class App
 {
 public:
 	std::vector<Texture> LoadedTextures;
 	std::vector<Model*> Objects;
+	std::vector<StaticLightSource*> StatLights;
+	std::vector<OrbitingLightSource*> OrbLights;
 	Window w;
 	std::vector<Material> Materials;
 
 	Bone* SkellyBoi;
 	std::vector<Bone*> Bones;
+
 	App() { 
 	
 		SkellyBoi = NULL;
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
-		angular_vel = 100;
-		Objects.push_back(ReadFBX("obj/ROBOT0.fbx"));
+		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
 
 	}
 
@@ -37,6 +39,10 @@ public:
 	{
 		for(auto obj : Objects)
 			delete obj;
+		for (auto light : StatLights)
+			delete light;
+		for (auto light : OrbLights)
+			delete light;
 	}
 
 	void Run()
@@ -59,8 +65,8 @@ public:
 			std::cout << glm::to_string(mat.diff) << " " 
 				<< glm::to_string(mat.diff) << " " << mat.spec << "\n";*/
 		
-
-		Model* light = ReadFBX("obj/helmet.fbx"); ///////////
+		createOrbitingLightSource("obj/CAT.fbx");
+		//Model* light = ReadFBX("obj/helmet.fbx"); ///////////
 
 		if (SHOWLOADEDTEXFEEDBACK)
 			std::cout << "Textures that should be loaded\n";
@@ -87,6 +93,9 @@ public:
 
 			end = std::chrono::high_resolution_clock::now();
 			duration = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+			
+			DrawEverything(shader, duration.count());
+			/*
 			glm::mat4 orbitTransform = orbit(duration.count());
 
 			glm::vec4 LightPos = glm::vec4(light->meshes[0]->vertices[0].Position, 1.0f);
@@ -99,7 +108,7 @@ public:
 
 			for (auto obj : Objects)
 				obj->Draw(shader, &LoadedTextures, &Materials);
-
+				*/
 			DisplayIMGUI();
 
 			glfwSwapBuffers(w.window);
@@ -109,7 +118,7 @@ public:
 				break;
 
 		}
-		delete light;
+		//delete light;
 		ImGui::DestroyContext();
 
 
@@ -117,26 +126,16 @@ public:
 
 	}
 	
-	float angular_vel;
 	ImVec4 clear_color;
 	ImVec4 rgb_ls;
 	float strength;
 
 
-	// For dynamic lighting purposes
-	glm::mat4 orbit(double time)
-	{
-		glm::mat4 T, R;
-		T = glm::translate(glm::mat4(1), glm::vec3(30, 0, 0));
-		R = glm::rotate(glm::mat4(1), (float)glm::radians(time) * angular_vel, glm::vec3(0.0f, 1.0f, 0.0f));
-		return R * T;
-	}
-
 	// Debug/Testing GUI
 	void DisplayIMGUI()
 	{
 
-		// OTHER INPUTS
+		// OTHER INPUTS?
 
 
 		// IMGUI
@@ -152,7 +151,6 @@ public:
 			if (ImGui::CollapsingHeader("Show objects"))
 			{
 
-				ImGui::SliderFloat("angular velocity", &angular_vel, -100, 100);
 
 				for (int i = 0; i < Objects.size(); i++)
 				{
@@ -172,20 +170,56 @@ public:
 						ImGui::End();
 					}
 				}
+
 			}
+
+
+			if (ImGui::CollapsingHeader("Show Lights"))
+			{
+				if (ImGui::CollapsingHeader("Orbital"))
+				{
+					for (int i = 0; i < OrbLights.size(); i++)
+					{
+						std::string obj_identifier = OrbLights[i]->body->name + std::to_string(i);
+
+						if (ImGui::CollapsingHeader(obj_identifier.c_str()))
+						{
+							ImGui::Begin(obj_identifier.c_str());
+
+							rgb_ls = ImVec4(OrbLights[i]->color.x, OrbLights[i]->color.y, OrbLights[i]->color.z, 1.0f);
+							ImGui::ColorEdit3("Light Source Color", (float*)&rgb_ls);
+							ImGui::SliderFloat("tx", &OrbLights[i]->body->Position.x, -100, 100);
+							ImGui::SliderFloat("ty", &OrbLights[i]->body->Position.y, -100, 100);
+							ImGui::SliderFloat("tz", &OrbLights[i]->body->Position.z, -100, 100);
+							ImGui::SliderFloat("rx", &OrbLights[i]->body->axis_rotations.x, -90, 90);
+							ImGui::SliderFloat("ry", &OrbLights[i]->body->axis_rotations.y, -90, 90);
+							ImGui::SliderFloat("rz", &OrbLights[i]->body->axis_rotations.z, -90, 90);
+							ImGui::SliderFloat("angular velocity", &OrbLights[i]->angularVel, -90, 90);
+							OrbLights[i]->color = glm::vec3(rgb_ls.x, rgb_ls.y, rgb_ls.z);
+							ImGui::End();
+						}
+					}
+				}
+				if (ImGui::CollapsingHeader("Static"))
+				{
+
+				}
+
+			}
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+			/*
 			if (ImGui::CollapsingHeader("Show Light Sources"))
 			{
 				bool clear_all_lights = false;
 				ImGui::Checkbox("Clear Lights?", &clear_all_lights);
-
 			}
-
-
-			ImGui::ColorEdit3("Light Source Color", (float*)&rgb_ls);
 			ImGui::SliderFloat("Light Strength", &strength, 0.0f, 1000000.0f);
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			//ImGui::Text("Coords: %f %f %f ", Camera->position.x, Camera->position.y, Camera->position.z);
+			*/
 
+		
 			ImGui::End();
 		}
 		ImGui::Render();
@@ -237,6 +271,82 @@ public:
 	int App::TexturelIsLoaded(Texture tex);
 	int MaterialIsLoaded(Material m);
 
+	void DrawEverything(Shader* shader, double time)
+	{
+		sendLightData(shader, time);
+		for (auto obj : Objects)
+			obj->Draw(shader, &LoadedTextures, &Materials);
+		for (auto light : StatLights)
+			light->Draw(time, shader, &LoadedTextures, &Materials);
+		for (auto light : OrbLights)
+			light->Draw(time, shader, &LoadedTextures, &Materials);
+	}
+	void sendLightData(Shader* shader, double time)
+	{
+		int index = 0;
+		for (auto light : StatLights)
+		{
+			
+			std::string default = "lights[";	
+			default.append(std::to_string(index));
+			default.append("].");
+
+
+			std::string position = default;
+			position.append("position");
+
+			shader->setVec3(position.c_str(), light->position);
+
+			std::string diffuse = default;
+			diffuse.append("diffuse");
+
+			shader->setVec3(diffuse.c_str(), light->color);
+			index++;
+		}
+
+		for (auto light : OrbLights)
+		{
+			std::string default = "lights[";
+			default.append(std::to_string(index));
+			default.append("].");
+
+
+			std::string position = default;
+			position.append("position");
+
+			glm::vec3 coord = glm::vec3(light->orbit(time) * glm::vec4(light->origin, 1.0f));
+
+			shader->setVec3(position.c_str(), coord);
+
+			std::string diffuse = default;
+			diffuse.append("diffuse");
+
+			shader->setVec3(diffuse.c_str(), light->color);
+			index++;
+		}
+
+		shader->setInt("NUM_OF_LIGHTS", index);
+
+	}
+	void createStaticLightSource(const char* path, glm::vec3 position = glm::vec3(0.0f))
+	{
+		StaticLightSource* StaticLight = new StaticLightSource;
+		StaticLight->body = ReadFBX(path);
+		StaticLight->position = position;
+		StatLights.push_back(StaticLight);
+	}
+	void createOrbitingLightSource(const char* path, float radius = 3.0f, glm::vec3 origin = glm::vec3(0.0f))
+	{
+		OrbitingLightSource* OrbitingLight = new OrbitingLightSource;
+		OrbitingLight->body = ReadFBX(path);
+		OrbitingLight->origin = origin;
+		OrbLights.push_back(OrbitingLight);
+	}
+
+	void Draw()
+	{
+
+	}
 
 	// LEGACY FUNC
 	Mesh* extractNodeMesh(FbxNode* pNode);

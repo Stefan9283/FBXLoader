@@ -31,7 +31,7 @@
 
 - V2.2 - 27 Sept 20
     - objects with multiple materials per mesh and no textures can now be loaded
-
+    - Orbital and static light sources have been added (their color can be changed from Dear ImGUI)
     <img src="Screenshots/Materials.PNG" alt="Materials" width="800"/>
 
 
