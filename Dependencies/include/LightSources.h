@@ -15,8 +15,8 @@ public:
 		body = NULL;
 		color = glm::vec3(1.0f);
 		diffuse = glm::vec3(0.5f);
-		ambient = glm::vec3(0.001f);
-		specular = glm::vec3(1.0f);
+		ambient = glm::vec3(0.0001f);
+		specular = glm::vec3(0.001f);
 	}
 	~LightSource()
 	{

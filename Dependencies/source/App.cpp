@@ -12,7 +12,7 @@ void fixPath(std::string* path)
 {
     for (int i = 0; i < (*path).size()-1; i++)
     {
-        if((*path)[i]=='\\' && (*path)[i+1]!=' ')
+        if ((*path)[i] == '\\' && (*path)[i + 1] != ' ')
             (*path)[i]='/';
 
         //std::cout << (*path)[i] << "\n";
@@ -482,10 +482,53 @@ void printNode(FbxNode* node, int level = 0)
     }
 }
 
+// WIP
+void freeSkellyBoi(Bone* node)
+{
+    for (auto child : node->children)
+        freeSkellyBoi(child);
 
+    delete node;
+}
+Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int level = 0)
+{
+
+    Bone* NBone = new Bone;
+    std::cout << "\t" << node->GetName() << "\n";
+
+
+    NBone->name = node->GetName();
+
+    for (auto i = 0; i < node->GetChildCount(); i++)
+    {
+        addTabs(level);
+        NBone->children.push_back(addToSkellyBoi(bones, node->GetChild(i), level + 1));
+        NBone->children[NBone->children.size() - 1]->parent = NBone;
+    }
+    return NBone;
+    //Bone* newBone = new Bone;
+    //newBone->name = pNode->GetName();
+}
+Bone* createSkellyboi(FbxNode* node, std::vector<Bone*>* bones)
+{
+    Bone* SkellyBoi = new Bone;
+    std::cout << node->GetName() << "\n";
+    for (auto i = 0; i < node->GetChildCount(); i++)
+    {
+        SkellyBoi->children.push_back(addToSkellyBoi(bones, node->GetChild(i)));
+        SkellyBoi->children[SkellyBoi->children.size() - 1]->parent = SkellyBoi;
+
+    }
+    return SkellyBoi;
+}
+// WIP
+
+
+
+// TANGENTS AND NORMALS NEED FIXING
 Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 {
-    
+
     Mesh* newMesh = new Mesh;
 
 #pragma region MATERIAL
@@ -536,36 +579,26 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
 #pragma region VERTICES
     int currentIndex = 0;
+    
+    
+    
+    fbxsdk::FbxGeometryElementNormal* lNormalElement = mesh->GetElementNormal();
+    fbxsdk::FbxGeometryElementTangent* lTangentElement = mesh->GetElementTangent();
 
-    /*
-    std::cout << "pol groups " << mesh->GetElementPolygonGroupCount() << "\n"; // 0
-    std::cout << "impl count " << mesh->GetImplementationCount() << "\n"; // 0
-    std::cout << "node count " << mesh->GetNodeCount() << "\n"; // 1
-    */
-
-
-    fbxsdk::FbxGeometryElementNormal* lNormalElement = mesh->GetElementNormal(0);
-    fbxsdk::FbxGeometryElementTangent* lTangentElement = mesh->GetElementTangent(0);
-
-    //fbxsdk::FbxGeometryElementBinormal* lBinormalElement = mesh->GetElementBinormal();
-
-    if (lNormalElement)
+    if (!lNormalElement)
     {
         mesh->GenerateNormals(true);
-        lNormalElement = mesh->GetElementNormal(0);
+        lTangentElement = mesh->GetElementTangent();
     }
-
     if (!lTangentElement)
     {
         mesh->GenerateTangentsDataForAllUVSets(true);
-        lTangentElement = mesh->GetElementTangent(0);
+        lTangentElement = mesh->GetElementTangent();
     }
 
-    fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV(0);
+    fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV();
 
     int lIndexByPolygonVertex = 0;
-
-    //std::cout << "lay " << mesh->GetLayerCount() << "\n"; // 1
 
     for (auto i = 0; i < mesh->GetPolygonCount(); i++)
     {
@@ -580,6 +613,9 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
             fbxsdk::FbxVector4 Position = mesh->GetControlPointAt(vertIndex);
             newVert.Position = glm::vec3(Position[0], Position[1], Position[2]);
 
+
+
+            
             int lNormalIndex = 0;
             //reference mode is direct, the normal index is same as lIndexByPolygonVertex.
             if (!lNormalElement)
@@ -594,9 +630,10 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
             //Got normals of each polygon-vertex.
             FbxVector4 lNormal = lNormalElement->GetDirectArray().GetAt(lNormalIndex);
-            //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
+            //std::cout << "normals for polygon " << i << " vertex " << lIndexByPolygonVertex << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
 
             newVert.Normal = glm::vec3(lNormal[0], lNormal[1], lNormal[2]);
+            
 
 
 
@@ -607,8 +644,6 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
 
 
-
-            /// /// WIP            
             if (mesh->GetUVLayerCount())
             {
                 int lTangentIndex = 0;
@@ -628,7 +663,7 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
                 //Got normals of each polygon-vertex.
                 FbxVector4 lTangent = lTangentElement->GetDirectArray().GetAt(lTangentIndex);
-                //std::cout << "normals for polygon " << i << " vertex " << j << " " << lNormal[0] << " " << lNormal[1] << " " << lNormal[2] << " " << lNormal[3] << "\n";
+                //std::cout << "tangent for polygon " << i << " vertex " << j << " " << lTangent[0] << " " << lTangent[1] << " " << lTangent[2] << " " << lTangent[3] << "\n";
 
                 newVert.Tangent = glm::vec3(lTangent[0], lTangent[1], lTangent[2]);
 
@@ -651,10 +686,6 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
 
 
-
-
-
-
             newMesh->vertices.push_back(newVert);
 
 
@@ -666,7 +697,7 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
     return newMesh;
 }
-void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
+void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
 {
 
     bool hasMeshes = false;
@@ -724,98 +755,139 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
         glm::mat4 transform_matrix = T * R2 * R3 * R1 * S;
 
         //std::cout << glm::to_string(newMesh->Transform) << "\n";
-    
+
 #pragma endregion
 #pragma region TEXTURES
 
-    std::vector<unsigned int> textureIndices;
+        std::vector<unsigned int> textureIndices;
 
-    int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
-
-
-    std::vector<std::string> types;
-    types.push_back(FbxSurfaceMaterial::sDiffuse);
-    types.push_back(FbxSurfaceMaterial::sDiffuseFactor);
-
-    types.push_back(FbxSurfaceMaterial::sEmissive);
-    types.push_back(FbxSurfaceMaterial::sEmissiveFactor);
-
-    types.push_back(FbxSurfaceMaterial::sAmbient);
-    types.push_back(FbxSurfaceMaterial::sAmbientFactor);
-
-    types.push_back(FbxSurfaceMaterial::sNormalMap);
+        int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
 
 
-    types.push_back(FbxSurfaceMaterial::sBump);
-    types.push_back(FbxSurfaceMaterial::sBumpFactor);
+        std::vector<std::string> types;
+        types.push_back(FbxSurfaceMaterial::sDiffuse);
+        types.push_back(FbxSurfaceMaterial::sDiffuseFactor);
 
-    types.push_back(FbxSurfaceMaterial::sDisplacementColor);
-    types.push_back(FbxSurfaceMaterial::sDisplacementFactor);
+        types.push_back(FbxSurfaceMaterial::sEmissive);
+        types.push_back(FbxSurfaceMaterial::sEmissiveFactor);
 
-    types.push_back(FbxSurfaceMaterial::sReflection);
-    types.push_back(FbxSurfaceMaterial::sReflectionFactor);
+        types.push_back(FbxSurfaceMaterial::sAmbient);
+        types.push_back(FbxSurfaceMaterial::sAmbientFactor);
 
-    types.push_back(FbxSurfaceMaterial::sVectorDisplacementColor);
-    types.push_back(FbxSurfaceMaterial::sVectorDisplacementFactor);
-
-    types.push_back(FbxSurfaceMaterial::sTransparentColor);
-    types.push_back(FbxSurfaceMaterial::sTransparencyFactor);
-
-    types.push_back(FbxSurfaceMaterial::sSpecular);
-    types.push_back(FbxSurfaceMaterial::sSpecularFactor);
-
-    types.push_back(FbxSurfaceMaterial::sShininess);
+        types.push_back(FbxSurfaceMaterial::sNormalMap);
 
 
+        types.push_back(FbxSurfaceMaterial::sBump);
+        types.push_back(FbxSurfaceMaterial::sBumpFactor);
 
-    for (auto type : types)
-        for (int index = 0; index < materialCount; index++)
-        {
-            FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(index);
+        types.push_back(FbxSurfaceMaterial::sDisplacementColor);
+        types.push_back(FbxSurfaceMaterial::sDisplacementFactor);
 
-            //std::cout << type << "\n";
+        types.push_back(FbxSurfaceMaterial::sReflection);
+        types.push_back(FbxSurfaceMaterial::sReflectionFactor);
 
-            if (material != NULL)
+        types.push_back(FbxSurfaceMaterial::sVectorDisplacementColor);
+        types.push_back(FbxSurfaceMaterial::sVectorDisplacementFactor);
+
+        types.push_back(FbxSurfaceMaterial::sTransparentColor);
+        types.push_back(FbxSurfaceMaterial::sTransparencyFactor);
+
+        types.push_back(FbxSurfaceMaterial::sSpecular);
+        types.push_back(FbxSurfaceMaterial::sSpecularFactor);
+
+        types.push_back(FbxSurfaceMaterial::sShininess);
+
+
+
+        for (auto type : types)
+            for (int index = 0; index < materialCount; index++)
             {
-                // NOT ANYMORE This only gets the material of type sDiffuse, you probably need to traverse all Standard Material Property by its name to get all possible textures.
-                FbxProperty prop = material->FindProperty(type.c_str());
-                // Check if it's layeredtextures
-                int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+                FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(index);
 
+                //std::cout << type << "\n";
 
-                if (layeredTextureCount > 0)
+                if (material != NULL)
                 {
-                    if (SHOWTEXTUREFEEDBACK)
+                    // NOT ANYMORE This only gets the material of type sDiffuse, you probably need to traverse all Standard Material Property by its name to get all possible textures.
+                    FbxProperty prop = material->FindProperty(type.c_str());
+                    // Check if it's layeredtextures
+                    int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+
+                    if (layeredTextureCount > 0)
                     {
-                        std::cout << type.c_str() << "\n";
-                        std::cout << "\tNum of textures: " << layeredTextureCount << "\n";
-
-                    }
-
-                    for (int j = 0; j < layeredTextureCount; j++)
-                    {
-                        FbxLayeredTexture* layered_texture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(j));
-                        int lcount = layered_texture->GetSrcObjectCount<FbxTexture>();
-
-                        for (int k = 0; k < lcount; k++)
+                        if (SHOWTEXTUREFEEDBACK)
                         {
-                            FbxTexture* texture = FbxCast<FbxTexture>(layered_texture->GetSrcObject<FbxTexture>(k));
+                            std::cout << type.c_str() << "\n";
+                            std::cout << "\tNum of textures: " << layeredTextureCount << "\n";
+
+                        }
+
+                        for (int j = 0; j < layeredTextureCount; j++)
+                        {
+                            FbxLayeredTexture* layered_texture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(j));
+                            int lcount = layered_texture->GetSrcObjectCount<FbxTexture>();
+
+                            for (int k = 0; k < lcount; k++)
+                            {
+                                FbxTexture* texture = FbxCast<FbxTexture>(layered_texture->GetSrcObject<FbxTexture>(k));
+                                // Then, you can get all the properties of the texture, include its name
+                                FbxFileTexture* f = FbxCast<FbxFileTexture>(texture);
+
+
+                                Texture newTex;
+                                newTex.filename = f->GetFileName();
+                                newTex.type = type;
+
+                                fixPath(&newTex.filename);
+
+
+                                if (SHOWTEXTUREFEEDBACK)
+                                {
+                                    std::cout << "\t\t" << newTex.filename.c_str() << " 1\n";
+
+                                }
+
+
+                                int index = TexturelIsLoaded(newTex);
+                                if (index == -1)
+                                {
+                                    LoadedTextures.push_back(newTex);
+                                    textureIndices.push_back(LoadedTextures.size() - 1);
+                                }
+                                else
+                                    textureIndices.push_back(index);
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        // Directly get textures
+                        int textureCount = prop.GetSrcObjectCount<FbxTexture>();
+                        if (SHOWTEXTUREFEEDBACK && textureCount)
+                        {
+                            std::cout << type.c_str() << "\n";
+                            std::cout << "\tNum of textures: " << textureCount << "\n";
+                        }
+
+
+                        for (int j = 0; j < textureCount; j++)
+                        {
+                            FbxTexture* texture = FbxCast<FbxTexture>(prop.GetSrcObject<FbxTexture>(j));
                             // Then, you can get all the properties of the texture, include its name
+
                             FbxFileTexture* f = FbxCast<FbxFileTexture>(texture);
-
-
+                            //                     texture->GetTextureUse()
                             Texture newTex;
                             newTex.filename = f->GetFileName();
                             newTex.type = type;
 
+
                             fixPath(&newTex.filename);
 
-
                             if (SHOWTEXTUREFEEDBACK)
-                            {
-                                std::cout << "\t\t" << newTex.filename.c_str() << " 1\n";
-
-                            }
+                                std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
 
 
                             int index = TexturelIsLoaded(newTex);
@@ -826,56 +898,15 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
                             }
                             else
                                 textureIndices.push_back(index);
+
                         }
-                    }
-                }
-                else
-                {
-
-                    // Directly get textures
-                    int textureCount = prop.GetSrcObjectCount<FbxTexture>();
-                    if (SHOWTEXTUREFEEDBACK && textureCount)
-                    {
-                        std::cout << type.c_str() << "\n";
-                        std::cout << "\tNum of textures: " << textureCount << "\n";
-                    }
-
-
-                    for (int j = 0; j < textureCount; j++)
-                    {
-                        FbxTexture* texture = FbxCast<FbxTexture>(prop.GetSrcObject<FbxTexture>(j));
-                        // Then, you can get all the properties of the texture, include its name
-
-                        FbxFileTexture* f = FbxCast<FbxFileTexture>(texture);
-                        //                     texture->GetTextureUse()
-                        Texture newTex;
-                        newTex.filename = f->GetFileName();
-                        newTex.type = type;
-
-
-                        fixPath(&newTex.filename);
-
-                        if (SHOWTEXTUREFEEDBACK)
-                            std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
-
-
-                        int index = TexturelIsLoaded(newTex);
-                        if (index == -1)
-                        {
-                            LoadedTextures.push_back(newTex);
-                            textureIndices.push_back(LoadedTextures.size() - 1);
-                        }
-                        else
-                            textureIndices.push_back(index);
-
                     }
                 }
             }
-        }
 #pragma endregion
 #pragma region MESH
 
-    
+
         for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
         {
             FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
@@ -888,7 +919,7 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
 
                 meshes->push_back(getMeshData(nodeAttrib, arr->GetAt(0)));
                 (*meshes)[meshes->size() - 1]->Transform = transform_matrix;
-                
+
                 for (auto j = 0; j < textureIndices.size(); j++)
                 {
                     (*meshes)[meshes->size() - 1]->texIndices.push_back(textureIndices[j]);
@@ -901,49 +932,6 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
     for (auto i = 0; i < node->GetChildCount(); i++)
         recursiveReadMeshes(node->GetChild(i), meshes);
 }
-
-// WIP
-void freeSkellyBoi(Bone* node)
-{
-    for (auto child : node->children)
-        freeSkellyBoi(child);
-
-    delete node;
-}
-Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int level = 0)
-{
-
-    Bone* NBone = new Bone;
-    std::cout << "\t" << node->GetName() << "\n";
-
-
-    NBone->name = node->GetName();
-
-    for (auto i = 0; i < node->GetChildCount(); i++)
-    {
-        addTabs(level);
-        NBone->children.push_back(addToSkellyBoi(bones, node->GetChild(i), level + 1));
-        NBone->children[NBone->children.size() - 1]->parent = NBone;
-    }
-    return NBone;
-    //Bone* newBone = new Bone;
-    //newBone->name = pNode->GetName();
-}
-Bone* createSkellyboi(FbxNode* node, std::vector<Bone*>* bones)
-{
-    Bone* SkellyBoi = new Bone;
-    std::cout << node->GetName() << "\n";
-    for (auto i = 0; i < node->GetChildCount(); i++)
-    {
-        SkellyBoi->children.push_back(addToSkellyBoi(bones, node->GetChild(i)));
-        SkellyBoi->children[SkellyBoi->children.size() - 1]->parent = SkellyBoi;
-
-    }
-    return SkellyBoi;
-}
-// WIP
-
-
 
 
 Model* App::ReadFBX(const char* path)
@@ -977,6 +965,7 @@ Model* App::ReadFBX(const char* path)
     
     
     //converter.RemoveBadPolygonsFromMeshes(lScene);
+    
     if (!converter.SplitMeshesPerMaterial(lScene, true))
     {
         std::cout << "Failed to split by materials\n";

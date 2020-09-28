@@ -34,7 +34,7 @@ public:
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
 
-		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
+		Objects.push_back(ReadFBX("obj/helmet.fbx"));
 		createOrbitingLightSource("obj/helmet.fbx");
 
 
@@ -171,9 +171,7 @@ public:
 
 							ImVec4 tmp;
 
-							tmp = ImVec4(OrbLights[i]->color.x, OrbLights[i]->color.y, OrbLights[i]->color.z, 1.0f);
-							ImGui::ColorEdit3("Light Source Color", (float*)&tmp);
-							OrbLights[i]->color = glm::vec3(tmp.x, tmp.y, tmp.z);
+							
 
 							ImGui::SliderFloat("tx", &OrbLights[i]->body->Position.x, -100, 100);
 							ImGui::SliderFloat("ty", &OrbLights[i]->body->Position.y, -100, 100);
@@ -183,6 +181,10 @@ public:
 							ImGui::SliderFloat("rz", &OrbLights[i]->body->axis_rotations.z, -90, 90);
 							ImGui::SliderFloat("angular velocity", &OrbLights[i]->angularVel, -90, 90);
 
+							
+							tmp = ImVec4(OrbLights[i]->color.x, OrbLights[i]->color.y, OrbLights[i]->color.z, 1.0f);
+							ImGui::ColorEdit3("Light Source Color", (float*)&tmp);
+							OrbLights[i]->color = glm::vec3(tmp.x, tmp.y, tmp.z);
 
 							tmp = ImVec4(OrbLights[i]->ambient.x, OrbLights[i]->ambient.y, OrbLights[i]->ambient.z, 1.0f);
 							ImGui::ColorEdit3("Ambient", (float*)&tmp);
@@ -195,7 +197,7 @@ public:
 							tmp = ImVec4(OrbLights[i]->specular.x, OrbLights[i]->specular.y, OrbLights[i]->specular.z, 1.0f);
 							ImGui::ColorEdit3("Specular", (float*)&tmp);
 							OrbLights[i]->specular = glm::vec3(tmp.x, tmp.y, tmp.z);
-
+							
 							ImGui::SliderFloat("radius", &(*OrbLights[i]).radius, -90, 90);
 							ImGui::End();
 						}

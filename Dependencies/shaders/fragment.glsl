@@ -1,29 +1,5 @@
 #version 330 core
 
-uniform mat4 proj;
-uniform mat4 view;
-uniform mat4 model;
-uniform mat4 mesh_model;
-uniform vec3 cameraPos;
-
-
-
-in VS_OUT{
-    vec3 FragPos;
-    mat3 TBN;
-    vec3 TangentViewPos;
-    vec3 TangentFragPos;
-} fs_in;
-
-struct LightSource
-{
-    vec3 color;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 specular;
-    vec3 position;
-};
-
 
 uniform sampler2D DiffuseColor[3];
 uniform int DiffuseColorCount;
@@ -40,6 +16,24 @@ uniform int ShininessExponentCount;
 uniform sampler2D SpecularColor[3];
 uniform int SpecularColorCount;
 
+
+uniform mat4 proj;
+uniform mat4 view;
+uniform mat4 model;
+uniform mat4 mesh_model;
+uniform vec3 cameraPos;
+
+
+struct LightSource
+{
+    vec3 color;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 specular;
+    vec3 position;
+};
+
+
 struct Material
 {
     vec3 ambient;
@@ -49,13 +43,19 @@ struct Material
     float shininess;
 };
 
+
+in VS_OUT{
+    vec3 FragPos;
+    mat3 TBN;
+    vec3 TangentViewPos;
+    vec3 TangentFragPos;
+} fs_in;
+
 in vec3 Norm;
 in vec3 FragPos;
 in vec2 texCoords;
 
 in vec3 debug_color;
-
-uniform vec3 LightPos;
 
 uniform Material material;
 
@@ -64,7 +64,9 @@ uniform int NUM_OF_LIGHTS;
 
 vec3 calculateColor(LightSource Light)
 {
-    Light.position = fs_in.TBN * Light.position;
+
+
+    vec3 lightpos = fs_in.TBN * Light.position;
 
     vec3 normal = Norm;
 
@@ -72,26 +74,26 @@ vec3 calculateColor(LightSource Light)
     normal = 2.0 * normal - 1.0;
 
     // normal
-    vec3 lightDir = normalize(Light.position - fs_in.TangentFragPos);
+    vec3 lightDir = normalize(lightpos - fs_in.TangentFragPos);
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
     //color
     vec3 color = texture(DiffuseColor[0], texCoords).rgb;
 
     // ambient
-    vec3 ambient = Light.ambient * color * 0.1f;
+    vec3 ambient = color * Light.ambient;
 
     // diffuse
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = Light.diffuse * color * diff;
+    vec3 diffuse = color * diff * Light.diffuse;
 
     // specular
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 
-    vec3 specular = Light.specular * spec * texture(SpecularColor[0], texCoords).rgb;
-
+    vec3 specular = spec * Light.specular;
+    
     return (ambient + diffuse + specular) * Light.color;
 }
 
@@ -139,7 +141,7 @@ void main()
 
         for (int i = 0; i < NUM_OF_LIGHTS; i++)
         {
-            result = calculateColor(lights[i]);
+            result += calculateColor(lights[i]);
         }
        
 
@@ -152,14 +154,13 @@ void main()
 
         for (int i = 0; i < NUM_OF_LIGHTS; i++)
         {
-            result = calculateColorNoTex(lights[i]);
+            result += calculateColorNoTex(lights[i]);
         }
 
         if(NUM_OF_LIGHTS == 0)
             result = material.diffuse;
 
        
-
         gl_FragColor = vec4(result, 1.0f);
         
     }
