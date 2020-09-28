@@ -34,7 +34,7 @@ int App::MaterialIsLoaded(Material m)
     for (auto i = 0; i < Materials.size(); i++)
         if (Materials[i].diff == m.diff &&
             Materials[i].emiss == m.emiss &&
-            Materials[i].spec == m.spec &&
+            Materials[i].shininess == m.shininess &&
             Materials[i].amb == m.amb)
             return i;
 
@@ -274,6 +274,8 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
     FbxDouble3 emiss = phong_material->Emissive.Get(); //Ke
     //printFbxDouble3(emiss);
 
+    FbxDouble shininess = phong_material->Shininess.Get();
+
     FbxDouble specf = phong_material->SpecularFactor.Get(); // spec - half of what Blender sees
     //std::cout << specf << "\n";
 
@@ -295,7 +297,8 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
     material.amb = FbxDouble3tovec3(amb);
     material.diff = FbxDouble3tovec3(diff);
     material.emiss = FbxDouble3tovec3(emiss);
-    material.spec = (float)specf;
+    material.spec = FbxDouble3tovec3(spec);
+    material.shininess = (float)shininess;
 
     int matIndex = MaterialIsLoaded(material);
     if (matIndex == -1)
@@ -501,6 +504,7 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
     FbxDouble3 disp = phong_material->DisplacementColor.Get();
     //printFbxDouble3(disp);
+    FbxDouble shininess = phong_material->Shininess.Get();
 
     FbxDouble3 amb = phong_material->Ambient.Get();
     //printFbxDouble3(amb);
@@ -517,7 +521,8 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
     material.amb = FbxDouble3tovec3(amb);
     material.diff = FbxDouble3tovec3(diff);
     material.emiss = FbxDouble3tovec3(emiss);
-    material.spec = (float)specf;
+    material.spec = FbxDouble3tovec3(spec);
+    material.shininess = (float)shininess;
 
 
     int matIndex = MaterialIsLoaded(material);
@@ -767,6 +772,8 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
         for (int index = 0; index < materialCount; index++)
         {
             FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(index);
+
+            //std::cout << type << "\n";
 
             if (material != NULL)
             {

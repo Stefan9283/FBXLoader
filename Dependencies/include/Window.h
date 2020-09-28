@@ -62,6 +62,7 @@ public:
         glDepthFunc(GL_LESS);
         glfwWindowHint(GLFW_SAMPLES, 8);
         glEnable(GL_MULTISAMPLE);
+        glEnable(GL_CULL_FACE);
 
 
     }

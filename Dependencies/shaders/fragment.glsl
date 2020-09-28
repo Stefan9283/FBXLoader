@@ -17,7 +17,10 @@ in VS_OUT{
 
 struct LightSource
 {
+    vec3 color;
     vec3 diffuse;
+    vec3 ambient;
+    vec3 specular;
     vec3 position;
 };
 
@@ -34,12 +37,16 @@ uniform int ReflectionFactorCount;
 uniform sampler2D ShininessExponent[3];
 uniform int ShininessExponentCount;
 
+uniform sampler2D SpecularColor[3];
+uniform int SpecularColorCount;
+
 struct Material
 {
     vec3 ambient;
     vec3 diffuse;
     vec3 emissive;
-    float specular;
+    vec3 specular;
+    float shininess;
 };
 
 in vec3 Norm;
@@ -72,19 +79,20 @@ vec3 calculateColor(LightSource Light)
     vec3 color = texture(DiffuseColor[0], texCoords).rgb;
 
     // ambient
-    vec3 ambient = color * 0.1f;
+    vec3 ambient = Light.ambient * color * 0.1f;
 
     // diffuse
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = color * Light.diffuse *diff;
+    vec3 diffuse = Light.diffuse * color * diff;
 
     // specular
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    vec3 specular = vec3(0.0001) * spec;
 
-    return ambient + diffuse + specular;
+    vec3 specular = Light.specular * spec * texture(SpecularColor[0], texCoords).rgb;
+
+    return (ambient + diffuse + specular) * Light.color;
 }
 
 vec3 calculateColorNoTex(LightSource Light)
@@ -94,38 +102,36 @@ vec3 calculateColorNoTex(LightSource Light)
     vec3 norm = normalize(Norm);
     float diff = max(dot(norm, lightDir), 0.0);
 
-    //vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 reflectDir = reflect(-lightDir, norm);
 
 
     vec3 color;
     vec3 diffuse;
     vec3 ambient;
+    vec3 specular;
     if (DiffuseColorCount <= 0)
     {
         color = material.diffuse;
         diffuse = color * diff;
-        ambient = 0.1f * material.ambient;
+        ambient = Light.ambient * material.ambient;
     }
     else
     {
         color = texture(DiffuseColor[0], texCoords).rgb;
         diffuse = color * diff;
-        ambient = 0.1f * color;
+        ambient = Light.ambient * color;
+
+        float spec = pow(max(dot(norm, reflectDir), 0.0), material.shininess);
+        specular = Light.specular * diffuse * spec;
     }
 
     diffuse = diffuse * Light.diffuse;
 
-    //vec3 ambient = light.ambient * material.diffuse;
-    //vec3 diffuse = light.diffuse * diff * material.diffuse;
-    // ambient
-    return ambient + diffuse;
+    return (ambient + diffuse + specular) * Light.color;
 }
 
 void main()
 {
-
-
-    
     if (NormalMapCount > 0)
     {
 
@@ -138,7 +144,6 @@ void main()
        
 
         gl_FragColor = vec4(result, 1.0f);
-        //gl_FragColor = vec4(ambient + diffuse + specular, 1.0f);
     }
     else
     { // diffuse only
@@ -158,7 +163,4 @@ void main()
         gl_FragColor = vec4(result, 1.0f);
         
     }
-
-   
-    
 };

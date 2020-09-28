@@ -7,12 +7,16 @@ class LightSource
 {
 public:
 	Model* body;
-	glm::vec3 color;
+	glm::vec3 color, diffuse, ambient, specular;
+
 
 	LightSource()
 	{
 		body = NULL;
 		color = glm::vec3(1.0f);
+		diffuse = glm::vec3(0.5f);
+		ambient = glm::vec3(0.001f);
+		specular = glm::vec3(1.0f);
 	}
 	~LightSource()
 	{
@@ -42,7 +46,7 @@ public:
 	
 	OrbitingLightSource()
 	{
-		this->radius = 1.0f;
+		this->radius = 30.0f;
 		this->origin = glm::vec3(0.0f);
 		angularVel = 1.0f;
 	}
@@ -57,7 +61,7 @@ public:
 	glm::mat4 orbit(double time)
 	{
 		glm::mat4 T, R;
-		T = glm::translate(glm::mat4(1), glm::vec3(30, 0, 0));
+		T = glm::translate(glm::mat4(1), glm::vec3(radius, 0, 0));
 		R = glm::rotate(glm::mat4(1), (float)glm::radians(time) * angularVel, glm::vec3(0.0f, 1.0f, 0.0f));
 		return R * T;
 	}

@@ -44,7 +44,8 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mate
     shader->setVec3("material.diffuse", (*materials)[matIndex].diff);
     shader->setVec3("material.emissive", (*materials)[matIndex].emiss);
     shader->setVec3("material.ambient", (*materials)[matIndex].amb);
-    shader->setFloat("material.specular", (*materials)[matIndex].spec);
+    shader->setVec3("material.specular", (*materials)[matIndex].spec);
+    shader->setFloat("material.shininess", (*materials)[matIndex].shininess);
     std::unordered_map<std::string, int> count;
 
 

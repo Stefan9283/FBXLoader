@@ -32,11 +32,10 @@ public:
 	
 		SkellyBoi = NULL;
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
 
 		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
-		//createOrbitingLightSource("obj/helmet.fbx");
+		createOrbitingLightSource("obj/helmet.fbx");
 
 
 		shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
@@ -112,7 +111,6 @@ public:
 	}
 	
 	ImVec4 clear_color;
-	ImVec4 rgb_ls;
 	float strength;
 
 
@@ -171,8 +169,12 @@ public:
 						{
 							ImGui::Begin(obj_identifier.c_str());
 
-							rgb_ls = ImVec4(OrbLights[i]->color.x, OrbLights[i]->color.y, OrbLights[i]->color.z, 1.0f);
-							ImGui::ColorEdit3("Light Source Color", (float*)&rgb_ls);
+							ImVec4 tmp;
+
+							tmp = ImVec4(OrbLights[i]->color.x, OrbLights[i]->color.y, OrbLights[i]->color.z, 1.0f);
+							ImGui::ColorEdit3("Light Source Color", (float*)&tmp);
+							OrbLights[i]->color = glm::vec3(tmp.x, tmp.y, tmp.z);
+
 							ImGui::SliderFloat("tx", &OrbLights[i]->body->Position.x, -100, 100);
 							ImGui::SliderFloat("ty", &OrbLights[i]->body->Position.y, -100, 100);
 							ImGui::SliderFloat("tz", &OrbLights[i]->body->Position.z, -100, 100);
@@ -180,8 +182,21 @@ public:
 							ImGui::SliderFloat("ry", &OrbLights[i]->body->axis_rotations.y, -90, 90);
 							ImGui::SliderFloat("rz", &OrbLights[i]->body->axis_rotations.z, -90, 90);
 							ImGui::SliderFloat("angular velocity", &OrbLights[i]->angularVel, -90, 90);
-							ImGui::SliderFloat("radius", &OrbLights[i]->radius, -90, 90);
-							OrbLights[i]->color = glm::vec3(rgb_ls.x, rgb_ls.y, rgb_ls.z);
+
+
+							tmp = ImVec4(OrbLights[i]->ambient.x, OrbLights[i]->ambient.y, OrbLights[i]->ambient.z, 1.0f);
+							ImGui::ColorEdit3("Ambient", (float*)&tmp);
+							OrbLights[i]->ambient = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							tmp = ImVec4(OrbLights[i]->diffuse.x, OrbLights[i]->diffuse.y, OrbLights[i]->diffuse.z, 1.0f);
+							ImGui::ColorEdit3("Diffuse", (float*)&tmp);
+							OrbLights[i]->diffuse = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							tmp = ImVec4(OrbLights[i]->specular.x, OrbLights[i]->specular.y, OrbLights[i]->specular.z, 1.0f);
+							ImGui::ColorEdit3("Specular", (float*)&tmp);
+							OrbLights[i]->specular = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							ImGui::SliderFloat("radius", &(*OrbLights[i]).radius, -90, 90);
 							ImGui::End();
 						}
 					}
@@ -286,7 +301,22 @@ public:
 			std::string diffuse = default;
 			diffuse.append("diffuse");
 
-			shader->setVec3(diffuse.c_str(), light->color);
+			shader->setVec3(diffuse.c_str(), light->diffuse);
+
+			std::string ambient = default;
+			ambient.append("ambient");
+
+			shader->setVec3(ambient.c_str(), light->ambient);
+
+			std::string specular = default;
+			specular.append("specular");
+
+			shader->setVec3(specular.c_str(), light->specular);
+
+			std::string color = default;
+			color.append("color");
+
+			shader->setVec3(color.c_str(), light->color);
 			index++;
 		}
 
@@ -307,7 +337,23 @@ public:
 			std::string diffuse = default;
 			diffuse.append("diffuse");
 
-			shader->setVec3(diffuse.c_str(), light->color);
+			shader->setVec3(diffuse.c_str(), light->diffuse);
+
+
+			std::string ambient = default;
+			ambient.append("ambient");
+
+			shader->setVec3(ambient.c_str(), light->ambient);
+
+			std::string specular = default;
+			specular.append("specular");
+
+			shader->setVec3(specular.c_str(), light->specular);
+
+			std::string color = default;
+			color.append("color");
+
+			shader->setVec3(color.c_str(), light->color);
 			index++;
 		}
 

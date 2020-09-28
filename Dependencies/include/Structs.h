@@ -17,8 +17,8 @@ struct Texture
 
 struct Material
 {
-    glm::vec3 amb, diff, emiss;
-    float spec;
+    glm::vec3 amb, diff, emiss, spec;
+    float shininess;
 };
 
 struct Bone
