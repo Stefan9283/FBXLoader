@@ -431,12 +431,30 @@ void printNode(FbxNode* node, int level = 0)
 {
     addTabs(level);            std::cout << node->GetName();
 
-    std::cout << " " << node->GetNodeAttributeCount() << ": ";
+    std::cout << " " << node->GetNodeAttributeCount() << ": " << "\n";
+
     for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
     {
-        std::cout << node->GetNodeAttributeByIndex(i)->GetAttributeType() << " ";;
+        if (node->GetNodeAttributeByIndex(i)->GetAttributeType() == 4)
+        {
 
+            FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
+            
+            FbxLayerElementArrayTemplate<int>* arr;
+            nodeAttrib->GetMaterialIndices(&arr);
+
+            FbxSurfacePhong* phong_material = (FbxSurfacePhong*)nodeAttrib->GetNode()->GetSrcObject<FbxSurfacePhong>(arr->GetAt(0));
+            FbxDouble3 diff = phong_material->Diffuse.Get();
+
+        }
     }
+
+
+
+
+
+
+
     std::cout << "\n";
     /*
     for (auto j = 0; j < node->GetNodeAttributeCount(); j++)
@@ -458,14 +476,6 @@ void printNode(FbxNode* node, int level = 0)
     for (auto i = 0; i < node->GetChildCount(); i++)
     {
         printNode(node->GetChild(i), level + 1);
-        /*
-        for (auto j = 0; j < node->GetChild(i)->GetNodeAttributeCount(); j++)
-            if (node->GetNodeAttributeByIndex(j) && 
-                node->GetNodeAttributeByIndex(j)->GetAttributeType() == FbxNodeAttribute::eMesh)
-            {
-                printNode(node->GetChild(i), level + 1);
-            }
-         */
     }
 }
 
@@ -482,7 +492,7 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
     FbxDouble3 diff = phong_material->Diffuse.Get(); //Kd
     //printFbxDouble3(diff);
-
+    //printFbxDouble3(diff);
     FbxDouble3 emiss = phong_material->Emissive.Get(); //Ke
     //printFbxDouble3(emiss);
 
@@ -858,15 +868,18 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*> *meshes)
 #pragma endregion
 #pragma region MESH
 
-        unsigned int meshIndex = 0;
-
+    
         for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
         {
             FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
             if (nodeAttrib->GetAttributeType() == 4)
             {
-                meshes->push_back(getMeshData(nodeAttrib, meshIndex));
-                meshIndex++;
+
+                FbxLayerElementArrayTemplate<int>* arr;
+                nodeAttrib->GetMaterialIndices(&arr);
+
+
+                meshes->push_back(getMeshData(nodeAttrib, arr->GetAt(0)));
                 (*meshes)[meshes->size() - 1]->Transform = transform_matrix;
                 
                 for (auto j = 0; j < textureIndices.size(); j++)
@@ -956,7 +969,7 @@ Model* App::ReadFBX(const char* path)
     FbxGeometryConverter converter(lSdkManager);
     
     
-    converter.RemoveBadPolygonsFromMeshes(lScene);
+    //converter.RemoveBadPolygonsFromMeshes(lScene);
     if (!converter.SplitMeshesPerMaterial(lScene, true))
     {
         std::cout << "Failed to split by materials\n";

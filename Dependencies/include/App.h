@@ -20,6 +20,9 @@ public:
 	std::vector<StaticLightSource*> StatLights;
 	std::vector<OrbitingLightSource*> OrbLights;
 	Window w;
+	Camera* cam;
+	Shader* shader;
+
 	std::vector<Material> Materials;
 
 	Bone* SkellyBoi;
@@ -31,84 +34,71 @@ public:
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		rgb_ls = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
-		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
 
+		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
+		//createOrbitingLightSource("obj/helmet.fbx");
+
+
+		shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
+
+
+
+		cam = new Camera(w.window);
+
+
+		if (SHOWLOADEDTEXFEEDBACK)
+			std::cout << "Textures that should be loaded\n";
+		for (auto i = 0; i < LoadedTextures.size(); i++)
+		{
+			LoadedTextures[i].id = TextureFromFile(LoadedTextures[i].filename.c_str());
+			if (SHOWLOADEDTEXFEEDBACK)
+				std::cout << "\t" << LoadedTextures[i].filename.c_str() << " id:" << LoadedTextures[i].id << "\n";
+		}
+
+		ImGui::CreateContext();
+		ImGui_ImplGlfw_InitForOpenGL(w.window, true);
+		ImGui_ImplOpenGL3_Init("#version 130");
+		ImGui::StyleColorsDark();
 	}
 
 	~App()
 	{
+		ImGui::DestroyContext();
+
 		for(auto obj : Objects)
 			delete obj;
 		for (auto light : StatLights)
 			delete light;
 		for (auto light : OrbLights)
 			delete light;
+		delete shader;
+		delete cam;
+
 	}
 
 	void Run()
 	{
-		Shader* shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
-		shader->bind();
 
-		
-
-		Camera cam(w.window);
-
-
-		ImGui::CreateContext();
-		ImGui_ImplGlfw_InitForOpenGL(w.window, true);
-		ImGui_ImplOpenGL3_Init("#version 130");
-		ImGui::StyleColorsDark();
-
-		/*std::cout << Materials.size() << "\n";
-		for (auto mat : Materials)
-			std::cout << glm::to_string(mat.diff) << " " 
-				<< glm::to_string(mat.diff) << " " << mat.spec << "\n";*/
-		
-		createOrbitingLightSource("obj/CAT.fbx");
-		//Model* light = ReadFBX("obj/helmet.fbx"); ///////////
-
-		if (SHOWLOADEDTEXFEEDBACK)
-			std::cout << "Textures that should be loaded\n";
-			for (auto i = 0; i < LoadedTextures.size(); i++)
-			{
-				LoadedTextures[i].id = TextureFromFile(LoadedTextures[i].filename.c_str());
-				if (SHOWLOADEDTEXFEEDBACK)
-					std::cout << "\t" << LoadedTextures[i].filename.c_str() << " id:" << LoadedTextures[i].id << "\n";
-			}
-		
 		std::chrono::high_resolution_clock::time_point start, end;
 		start = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration;
+		
 		while (!glfwWindowShouldClose(w.window))
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			cam.Move(w.window);
-			cam.update_proj(w.window);
-			shader->setMat4("view", cam.getviewmatrix());
-			shader->setMat4("proj", cam.getprojmatrix());
-			shader->setVec3("cameraPos", cam.position);
+			cam->Move(w.window);
+			cam->update_proj(w.window);
+			shader->setMat4("view", cam->getviewmatrix());
+			shader->setMat4("proj", cam->getprojmatrix());
+			shader->setVec3("cameraPos", cam->position);
 
 
 			end = std::chrono::high_resolution_clock::now();
 			duration = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 			
 			DrawEverything(shader, duration.count());
-			/*
-			glm::mat4 orbitTransform = orbit(duration.count());
 
-			glm::vec4 LightPos = glm::vec4(light->meshes[0]->vertices[0].Position, 1.0f);
-			LightPos = orbitTransform * light->getModelMatrix() * LightPos;
-			//LightPos = light->getModelMatrix() * LightPos;
-			glm::vec3 croppedLightPos = glm::vec3(LightPos);
-			shader->setVec3("LightPos", croppedLightPos);
-
-			light->Draw(shader, &LoadedTextures, &Materials, orbitTransform);
-
-			for (auto obj : Objects)
-				obj->Draw(shader, &LoadedTextures, &Materials);
-				*/
 			DisplayIMGUI();
 
 			glfwSwapBuffers(w.window);
@@ -118,11 +108,6 @@ public:
 				break;
 
 		}
-		//delete light;
-		ImGui::DestroyContext();
-
-
-		delete shader;
 
 	}
 	
@@ -344,10 +329,6 @@ public:
 		OrbLights.push_back(OrbitingLight);
 	}
 
-	void Draw()
-	{
-
-	}
 
 	// LEGACY FUNC
 	Mesh* extractNodeMesh(FbxNode* pNode);

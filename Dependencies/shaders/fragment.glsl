@@ -150,6 +150,9 @@ void main()
             result = calculateColorNoTex(lights[i]);
         }
 
+        if(NUM_OF_LIGHTS == 0)
+            result = material.diffuse;
+
        
 
         gl_FragColor = vec4(result, 1.0f);
