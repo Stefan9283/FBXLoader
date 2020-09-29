@@ -1042,35 +1042,165 @@ Model* App::ReadFBX(const char* path)
         std::cout << animStack->GetName() << "\n";
 
 
+        std::vector<Animation> animations;
+
         int numLayers = animStack->GetMemberCount<FbxAnimLayer>();
         for (int j = 0; j < numLayers; j++)
         {
             FbxAnimLayer* lAnimLayer = animStack->GetMember<FbxAnimLayer>(j);
             
-            
-            //std::queue<FbxNode> nodes;
-            FbxNode* tempNode = lScene->GetRootNode();
-            while (tempNode != NULL)
+            Animation anim;
+            anim.name = lAnimLayer->GetName();
+
+            std::queue<FbxNode*> nodes;
+            nodes.push(lScene->GetRootNode());
+
+            while (nodes.size())
             {
-                FbxAnimCurve* lAnimCurveTrX = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-                FbxAnimCurve* lAnimCurveTrY = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-                FbxAnimCurve* lAnimCurveTrZ = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                FbxNode* tmpNode = nodes.front();
+                nodes.pop();
+                
+                for (auto k = 0; k < tmpNode->GetChildCount(); k++)
+                {
+                    nodes.push(tmpNode->GetChild(k));
+                }
 
-                std::cout << lAnimCurveTrX->KeyGetCount() << " " << lAnimCurveTrY->KeyGetCount() << " " << lAnimCurveTrZ->KeyGetCount() << "\n";
+
+                for (auto k = 0; k < tmpNode->GetNodeAttributeCount(); k++)
+                {
+
+                    FbxNodeAttribute* nodeAttrib = tmpNode->GetNodeAttributeByIndex(k);
+                    if (nodeAttrib->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+                    {
+                        BoneKeyframes keyfr;
+                        keyfr.boneName = tmpNode->GetName();
+
+                    #pragma region Translation Keyframes
+                        std::vector<std::pair<float, float>> TrX, TrY, TrZ;
+                        std::cout << tmpNode->GetName() << "\n";
+                        FbxAnimCurve* lAnimCurveTrX = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                        FbxAnimCurve* lAnimCurveTrY = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                        FbxAnimCurve* lAnimCurveTrZ = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+
+                        if (!lAnimCurveTrX)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveTrX->KeyGetCount(); l++)
+                                TrX.push_back(std::make_pair(static_cast<float>(lAnimCurveTrX->KeyGetValue(l)), lAnimCurveTrX->KeyGetTime(l).Get()));
+                            
+                        }
+
+                        if (!lAnimCurveTrY)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveTrY->KeyGetCount(); l++)
+                                TrY.push_back(std::make_pair(static_cast<float>(lAnimCurveTrY->KeyGetValue(l)), lAnimCurveTrY->KeyGetTime(l).Get()));
+                            
+                        }
+
+                        if (!lAnimCurveTrZ)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveTrZ->KeyGetCount(); l++)
+                                TrZ.push_back(std::make_pair(static_cast<float>(lAnimCurveTrZ->KeyGetValue(l)), lAnimCurveTrZ->KeyGetTime(l).Get()));
+                        }
+                    #pragma endregion
+
+                    #pragma region Rotation Keyframes 
+                        std::vector < std::pair<float, signed long>> RoX, RoY, RoZ;
+                        FbxAnimCurve* lAnimCurveRoX = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                        FbxAnimCurve* lAnimCurveRoY = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                        FbxAnimCurve* lAnimCurveRoZ = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                        if (!lAnimCurveRoX)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveRoX->KeyGetCount(); l++)
+                               RoX.push_back(std::make_pair(static_cast<float>(lAnimCurveRoX->KeyGetValue(l)), static_cast<signed long>(lAnimCurveRoX->KeyGetTime(l).Get())));
+                            //std::cout << RoX[0].second << "\n";
+                        }
+
+                        if (!lAnimCurveRoY)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveRoY->KeyGetCount(); l++)
+                                RoY.push_back(std::make_pair(static_cast<float>(lAnimCurveRoY->KeyGetValue(l)), lAnimCurveRoY->KeyGetTime(l).Get()));
+
+                        }
+
+                        if (!lAnimCurveRoZ)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveRoZ->KeyGetCount(); l++)
+                                RoZ.push_back(std::make_pair(static_cast<float>(lAnimCurveRoZ->KeyGetValue(l)), lAnimCurveRoZ->KeyGetTime(l).Get()));
+                        }
+                    #pragma endregion
+
+                    #pragma region Scaling Keyframes
+                        std::vector < std::pair<float, signed long>> ScX, ScY, ScZ;
+                        FbxAnimCurve* lAnimCurveScX = tmpNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                        FbxAnimCurve* lAnimCurveScY = tmpNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                        FbxAnimCurve* lAnimCurveScZ = tmpNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                        if (!lAnimCurveScX)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveScX->KeyGetCount(); l++)
+                                ScX.push_back(std::make_pair(static_cast<float>(lAnimCurveScX->KeyGetValue(l)), static_cast<signed long>(lAnimCurveScX->KeyGetTime(l).Get())));
+                            //std::cout << RoX[0].second << "\n";
+                        }
+
+                        if (!lAnimCurveScY)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveScY->KeyGetCount(); l++)
+                                ScY.push_back(std::make_pair(static_cast<float>(lAnimCurveScY->KeyGetValue(l)), lAnimCurveScY->KeyGetTime(l).Get()));
+
+                        }
+
+                        if (!lAnimCurveScZ)
+                            std::cout << "X null\n";
+                        else
+                        {
+                            for (auto l = 0; l < lAnimCurveScZ->KeyGetCount(); l++)
+                                ScZ.push_back(std::make_pair(static_cast<float>(lAnimCurveScZ->KeyGetValue(l)), lAnimCurveScZ->KeyGetTime(l).Get()));
+                        }
+                    #pragma endregion
+
+                        keyfr.TrX = TrX;
+                        keyfr.TrY = TrY;
+                        keyfr.TrZ = TrZ;
+
+                        keyfr.RoX = RoX;
+                        keyfr.RoY = RoY;
+                        keyfr.RoZ = RoZ;
+                       
+                        keyfr.ScX = ScX;
+                        keyfr.ScY = ScY;
+                        keyfr.ScZ = ScZ;
+
+
+                        anim.keyframes.push_back(keyfr);
+
+                        break;
+
+                    }
+                }
+                
                 /*
-                * for(int lCount = 0; lCount < lKeyCountRZ; lCount++)
-      {
-        FbxTime lKeyTime = pCurveRZ->KeyGetTime(lCount);    
-        float lKeyValue = static_cast<float>(pCurveRZ->KeyGetValue(lCount));
-        }
-                FbxAnimCurve* lAnimCurveRoX = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-                FbxAnimCurve* lAnimCurveRoY = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-                FbxAnimCurve* lAnimCurveRoZ = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
-                FbxAnimCurve* lAnimCurveScX = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-                FbxAnimCurve* lAnimCurveScY = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-                FbxAnimCurve* lAnimCurveScZ = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);*/
+                
+                    */
+                //std::cout << lAnimCurveTrX->KeyGetCount() << " " << lAnimCurveTrY->KeyGetCount() << " " << lAnimCurveTrZ->KeyGetCount() << "\n";
+                
             }
+        
+            animations.push_back(anim);
         }
     }
     

@@ -27,3 +27,21 @@ struct Bone
     std::vector<Bone*> children;
     Bone* parent;
 };
+
+
+
+struct BoneKeyframes
+{
+    std::string boneName;
+    std::vector<std::pair<float, float>> TrX, TrY, TrZ;
+    std::vector < std::pair<float, signed long>> RoX, RoY, RoZ;
+    std::vector < std::pair<float, signed long>> ScX, ScY, ScZ;
+
+};
+
+
+struct Animation
+{
+    std::string name;
+    std::vector<BoneKeyframes> keyframes;
+};

@@ -9,7 +9,7 @@ int main()
 {
 
     App app;
-    app.Run();
+    //app.Run();
 
     return 0;
 }
