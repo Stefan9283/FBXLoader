@@ -422,112 +422,19 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
 
 }
 
-// DEBUG FUNC
-void addTabs(int count)
-{
-    for (auto i = 0; i < count; i++)
-    {
-        std::cout << "\t";
-    }
-}
-void printNode(FbxNode* node, int level = 0)
-{
-    addTabs(level);            std::cout << node->GetName();
-
-    std::cout << " " << node->GetNodeAttributeCount() << ": " << "\n";
-
-    for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
-    {
-        if (node->GetNodeAttributeByIndex(i)->GetAttributeType() == 4)
-        {
-
-            FbxMesh* nodeAttrib = (FbxMesh*)node->GetNodeAttributeByIndex(i);
-            
-            FbxLayerElementArrayTemplate<int>* arr;
-            nodeAttrib->GetMaterialIndices(&arr);
-
-            FbxSurfacePhong* phong_material = (FbxSurfacePhong*)nodeAttrib->GetNode()->GetSrcObject<FbxSurfacePhong>(arr->GetAt(0));
-            FbxDouble3 diff = phong_material->Diffuse.Get();
-
-        }
-    }
-
-
-
-
-
-
-
-    std::cout << "\n";
-    /*
-    for (auto j = 0; j < node->GetNodeAttributeCount(); j++)
-    {
-        std::cout << " " << node->GetNodeAttributeByIndex(j)->GetAttributeType() << " ";
-        if (node->GetNodeAttributeByIndex(j)->GetAttributeType() == FbxNodeAttribute::eMesh)
-        {
-            std::cout << "Was ist das? " << node->GetNodeAttributeByIndex(j)->GetNodeCount() << " ";
-            std::cout << "Was ist das? " << node->GetNodeAttribute()->GetNodeCount() << " ";
-            //std::cout << " triangles " << node->GetMesh()->GetPolygonCount() << " triangles ";
-
-            //std::cout << node->GetName();
-        }
-    }
-    std::cout << "\n";
-    */
-
-    for (auto i = 0; i < node->GetChildCount(); i++)
-    {
-        printNode(node->GetChild(i), level + 1);
-    }
-}
-
-// WIP
-void freeSkellyBoi(Bone* node)
-{
-    for (auto child : node->children)
-        freeSkellyBoi(child);
-
-    delete node;
-}
-Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int level = 0)
-{
-
-    Bone* NBone = new Bone;
-    std::cout << "\t" << node->GetName() << "\n";
-
-
-    NBone->name = node->GetName();
-
-    for (auto i = 0; i < node->GetChildCount(); i++)
-    {
-        addTabs(level);
-        NBone->children.push_back(addToSkellyBoi(bones, node->GetChild(i), level + 1));
-        NBone->children[NBone->children.size() - 1]->parent = NBone;
-    }
-    return NBone;
-    //Bone* newBone = new Bone;
-    //newBone->name = pNode->GetName();
-}
-Bone* createSkellyboi(FbxNode* node, std::vector<Bone*>* bones)
-{
-    Bone* SkellyBoi = new Bone;
-    std::cout << node->GetName() << "\n";
-    for (auto i = 0; i < node->GetChildCount(); i++)
-    {
-        SkellyBoi->children.push_back(addToSkellyBoi(bones, node->GetChild(i)));
-        SkellyBoi->children[SkellyBoi->children.size() - 1]->parent = SkellyBoi;
-
-    }
-    return SkellyBoi;
-}
-// WIP
-
-
-
 Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 {
 
     Mesh* newMesh = new Mesh;
+
+    /*
+    for (auto i = 0; i < mesh->GetDeformerCount(); i++)
+    {
+        FbxDeformer* def = mesh->GetDeformer(i);
+        std::cout << def->GetName() << "\n";
+
+    }*/
+    
 
 #pragma region MATERIAL
     Material material;
@@ -875,7 +782,6 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                             // Then, you can get all the properties of the texture, include its name
 
                             FbxFileTexture* f = FbxCast<FbxFileTexture>(texture);
-                            //                     texture->GetTextureUse()
                             Texture newTex;
                             newTex.filename = f->GetFileName();
                             newTex.type = type;
@@ -1026,23 +932,22 @@ Model* App::ReadFBX(const char* path)
     }
     */
 
-
     for (auto mesh : new_model->meshes)
         mesh->prepare();
 
     //WIP
-    //std::vector<Bone*> Bones;
-    //Bone* skellyboi = createSkellyboi(lScene->GetRootNode(), &Bones);
+#pragma region ARMATURE/ANIMATIONS
+    new_model->SkellyBoi = createSkellyboi(lScene->GetRootNode(), &(new_model->Bones));
+    std::cout << "Bones count " << new_model->Bones.size() << "\n";
 
     int numStacks = lScene->GetSrcObjectCount<FbxAnimStack>();//(FBX_TYPE(FbxAnimStack));
     std::cout << "Anim Count " << numStacks << "\n";
+
+    //std::vector<Animation> animations;
     for (auto i = 0; i < numStacks; i++)
     {
         FbxAnimStack* animStack = FbxCast<FbxAnimStack>(lScene->GetSrcObject<FbxAnimStack>(i));//lScene->GetCurrentAnimationStack();
         std::cout << animStack->GetName() << "\n";
-
-
-        std::vector<Animation> animations;
 
         int numLayers = animStack->GetMemberCount<FbxAnimLayer>();
         for (int j = 0; j < numLayers; j++)
@@ -1074,16 +979,16 @@ Model* App::ReadFBX(const char* path)
                     {
                         BoneKeyframes keyfr;
                         keyfr.boneName = tmpNode->GetName();
+                        //std::cout << tmpNode->GetName() << "\n";
 
                     #pragma region Translation Keyframes
                         std::vector<std::pair<float, float>> TrX, TrY, TrZ;
-                        std::cout << tmpNode->GetName() << "\n";
                         FbxAnimCurve* lAnimCurveTrX = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
                         FbxAnimCurve* lAnimCurveTrY = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
                         FbxAnimCurve* lAnimCurveTrZ = tmpNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
                         if (!lAnimCurveTrX)
-                            std::cout << "X null\n";
+                            std::cout << "X Transl null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveTrX->KeyGetCount(); l++)
@@ -1092,7 +997,7 @@ Model* App::ReadFBX(const char* path)
                         }
 
                         if (!lAnimCurveTrY)
-                            std::cout << "X null\n";
+                            std::cout << "Y Transl null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveTrY->KeyGetCount(); l++)
@@ -1101,7 +1006,7 @@ Model* App::ReadFBX(const char* path)
                         }
 
                         if (!lAnimCurveTrZ)
-                            std::cout << "X null\n";
+                            std::cout << "Z Transl null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveTrZ->KeyGetCount(); l++)
@@ -1114,17 +1019,17 @@ Model* App::ReadFBX(const char* path)
                         FbxAnimCurve* lAnimCurveRoX = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
                         FbxAnimCurve* lAnimCurveRoY = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
                         FbxAnimCurve* lAnimCurveRoZ = tmpNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                        
                         if (!lAnimCurveRoX)
-                            std::cout << "X null\n";
+                            std::cout << "X Rot null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveRoX->KeyGetCount(); l++)
                                RoX.push_back(std::make_pair(static_cast<float>(lAnimCurveRoX->KeyGetValue(l)), static_cast<signed long>(lAnimCurveRoX->KeyGetTime(l).Get())));
-                            //std::cout << RoX[0].second << "\n";
                         }
 
                         if (!lAnimCurveRoY)
-                            std::cout << "X null\n";
+                            std::cout << "Y Rot null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveRoY->KeyGetCount(); l++)
@@ -1133,7 +1038,7 @@ Model* App::ReadFBX(const char* path)
                         }
 
                         if (!lAnimCurveRoZ)
-                            std::cout << "X null\n";
+                            std::cout << "Z Rot null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveRoZ->KeyGetCount(); l++)
@@ -1147,16 +1052,15 @@ Model* App::ReadFBX(const char* path)
                         FbxAnimCurve* lAnimCurveScY = tmpNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
                         FbxAnimCurve* lAnimCurveScZ = tmpNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
                         if (!lAnimCurveScX)
-                            std::cout << "X null\n";
+                            std::cout << "X Scaling null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveScX->KeyGetCount(); l++)
                                 ScX.push_back(std::make_pair(static_cast<float>(lAnimCurveScX->KeyGetValue(l)), static_cast<signed long>(lAnimCurveScX->KeyGetTime(l).Get())));
-                            //std::cout << RoX[0].second << "\n";
                         }
 
                         if (!lAnimCurveScY)
-                            std::cout << "X null\n";
+                            std::cout << "Y Scaling null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveScY->KeyGetCount(); l++)
@@ -1165,7 +1069,7 @@ Model* App::ReadFBX(const char* path)
                         }
 
                         if (!lAnimCurveScZ)
-                            std::cout << "X null\n";
+                            std::cout << "Z Scaling null\n";
                         else
                         {
                             for (auto l = 0; l < lAnimCurveScZ->KeyGetCount(); l++)
@@ -1185,26 +1089,39 @@ Model* App::ReadFBX(const char* path)
                         keyfr.ScY = ScY;
                         keyfr.ScZ = ScZ;
 
+                        int ID = -1;
+                        for (auto bone : new_model->Bones)
+                        {
+                            if (!strcmp(bone->name.c_str(), keyfr.boneName.c_str()))
+                            {
+                                ID = bone->ID;
+                                break;
+                            }
+                        }
 
-                        anim.keyframes.push_back(keyfr);
+
+                        //std::cout << ID << "\n";
+
+                        if (anim.keyframes.size() < ID + 1)
+                        {
+                            anim.keyframes.resize(ID + 1);
+                        }
+                        anim.keyframes[ID] = (keyfr);
 
                         break;
 
                     }
                 }
-                
-                /*
-                
-                    */
+
                 //std::cout << lAnimCurveTrX->KeyGetCount() << " " << lAnimCurveTrY->KeyGetCount() << " " << lAnimCurveTrZ->KeyGetCount() << "\n";
                 
             }
         
-            animations.push_back(anim);
+            new_model->animations.push_back(anim);
         }
     }
-    
-    //freeSkellyBoi(skellyboi);
+
+#pragma endregion
     //WIP
 
 

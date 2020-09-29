@@ -12,9 +12,12 @@ Model::~Model()
 {
     for (auto mesh : meshes)
         delete mesh;
+    if (SkellyBoi)
+        freeSkellyBoi(SkellyBoi);
 }
 Model::Model()
 {
+    SkellyBoi = NULL;
     axis_rotations = glm::vec3(0);
     old_axis_rotations = glm::vec3(0);
     Position = glm::vec3(0.0f);

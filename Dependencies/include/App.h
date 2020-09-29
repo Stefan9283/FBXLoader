@@ -4,7 +4,9 @@
 #define SHOWLOADEDTEXFEEDBACK false
 
 #include "Common.h"
+
 #include "Model.h"
+#include "Animations.h"
 
 #include "Window.h"
 #include "Camera.h"
@@ -25,12 +27,10 @@ public:
 
 	std::vector<Material> Materials;
 
-	Bone* SkellyBoi;
-	std::vector<Bone*> Bones;
+
 
 	App() { 
 	
-		SkellyBoi = NULL;
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
 
