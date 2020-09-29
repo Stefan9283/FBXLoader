@@ -34,7 +34,7 @@ public:
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
 
-		Objects.push_back(ReadFBX("obj/helmet.fbx"));
+		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
 		createOrbitingLightSource("obj/helmet.fbx");
 
 

@@ -474,8 +474,7 @@ void printNode(FbxNode* node, int level = 0)
     }
     std::cout << "\n";
     */
-        //
-    //FbxNodeAttribute::eMesh
+
     for (auto i = 0; i < node->GetChildCount(); i++)
     {
         printNode(node->GetChild(i), level + 1);
@@ -525,7 +524,6 @@ Bone* createSkellyboi(FbxNode* node, std::vector<Bone*>* bones)
 
 
 
-// TANGENTS AND NORMALS NEED FIXING
 Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 {
 
@@ -579,7 +577,6 @@ Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 
 #pragma region VERTICES
     int currentIndex = 0;
-    
     
     
     fbxsdk::FbxGeometryElementNormal* lNormalElement = mesh->GetElementNormal();
@@ -1029,9 +1026,58 @@ Model* App::ReadFBX(const char* path)
     }
     */
 
+
     for (auto mesh : new_model->meshes)
         mesh->prepare();
- 
+
+    //WIP
+    //std::vector<Bone*> Bones;
+    //Bone* skellyboi = createSkellyboi(lScene->GetRootNode(), &Bones);
+
+    int numStacks = lScene->GetSrcObjectCount<FbxAnimStack>();//(FBX_TYPE(FbxAnimStack));
+    std::cout << "Anim Count " << numStacks << "\n";
+    for (auto i = 0; i < numStacks; i++)
+    {
+        FbxAnimStack* animStack = FbxCast<FbxAnimStack>(lScene->GetSrcObject<FbxAnimStack>(i));//lScene->GetCurrentAnimationStack();
+        std::cout << animStack->GetName() << "\n";
+
+
+        int numLayers = animStack->GetMemberCount<FbxAnimLayer>();
+        for (int j = 0; j < numLayers; j++)
+        {
+            FbxAnimLayer* lAnimLayer = animStack->GetMember<FbxAnimLayer>(j);
+            
+            
+            //std::queue<FbxNode> nodes;
+            FbxNode* tempNode = lScene->GetRootNode();
+            while (tempNode != NULL)
+            {
+                FbxAnimCurve* lAnimCurveTrX = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                FbxAnimCurve* lAnimCurveTrY = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                FbxAnimCurve* lAnimCurveTrZ = tempNode->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+
+                std::cout << lAnimCurveTrX->KeyGetCount() << " " << lAnimCurveTrY->KeyGetCount() << " " << lAnimCurveTrZ->KeyGetCount() << "\n";
+                /*
+                * for(int lCount = 0; lCount < lKeyCountRZ; lCount++)
+      {
+        FbxTime lKeyTime = pCurveRZ->KeyGetTime(lCount);    
+        float lKeyValue = static_cast<float>(pCurveRZ->KeyGetValue(lCount));
+        }
+                FbxAnimCurve* lAnimCurveRoX = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                FbxAnimCurve* lAnimCurveRoY = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                FbxAnimCurve* lAnimCurveRoZ = tempNode->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+
+                FbxAnimCurve* lAnimCurveScX = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                FbxAnimCurve* lAnimCurveScY = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                FbxAnimCurve* lAnimCurveScZ = tempNode->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);*/
+            }
+        }
+    }
+    
+    //freeSkellyBoi(skellyboi);
+    //WIP
+
+
      // Destroy the SDK manager and all the other objects it was handling.
     lSdkManager->Destroy();
 
