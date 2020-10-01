@@ -21,7 +21,7 @@ public:
     std::vector<Bone*> Bones;
     std::vector<Animation> animations;
 
-    void Model::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
+    void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
 
     Model();
     ~Model();

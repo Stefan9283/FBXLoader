@@ -61,14 +61,14 @@ public:
     ~Shader(){}
 
     // reads the shaders from the files and returns a ShaderProgramSource struct
-    ShaderProgramSource Shader::ParseShader(const char* filepath_v, const char* filepath_f);
+    ShaderProgramSource ParseShader(const char* filepath_v, const char* filepath_f);
     
     /* compiles the shader
     - type: GL_VERTEX_SHADER/GL_FRAGMENT_SHADER
     - source: char array containing the source code of the shader
     */
-    unsigned int Shader::CompileShader(unsigned int type, const char* source);
+    unsigned int CompileShader(unsigned int type, const char* source);
     // Links the shaders together and returns the internal id of the group
-    unsigned int Shader::CreateShader(const char* vertexShader, const char* fragmentShader);
+    unsigned int CreateShader(const char* vertexShader, const char* fragmentShader);
    
 };
