@@ -15,8 +15,8 @@ public:
     bool prepared;
     unsigned int matIndex;
 
-    void Mesh::prepare();
-    void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials);
+    void prepare();
+    void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials);
 
     Mesh();
     ~Mesh();

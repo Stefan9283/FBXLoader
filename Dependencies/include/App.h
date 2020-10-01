@@ -232,8 +232,8 @@ public:
 	}
 
 	// Model Reading
-	Mesh* App::getMeshData(FbxMesh* mesh, int material_index);
-	void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes);
+	Mesh* getMeshData(FbxMesh* mesh, int material_index);
+	void recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes);
 	Model* ReadFBX(const char* path);
 
 	// Tex/Mat Funcs
@@ -271,7 +271,7 @@ public:
 
 		return texture_id;
 	}
-	int App::TexturelIsLoaded(Texture tex);
+	int TexturelIsLoaded(Texture tex);
 	int MaterialIsLoaded(Material m);
 
 	void DrawEverything(Shader* shader, double time)
@@ -290,32 +290,32 @@ public:
 		for (auto light : StatLights)
 		{
 			
-			std::string default = "lights[";	
-			default.append(std::to_string(index));
-			default.append("].");
+			std::string defStr = "lights[";	
+			defStr.append(std::to_string(index));
+			defStr.append("].");
 
 
-			std::string position = default;
+			std::string position = defStr;
 			position.append("position");
 
 			shader->setVec3(position.c_str(), light->position);
 
-			std::string diffuse = default;
+			std::string diffuse = defStr;
 			diffuse.append("diffuse");
 
 			shader->setVec3(diffuse.c_str(), light->diffuse);
 
-			std::string ambient = default;
+			std::string ambient = defStr;
 			ambient.append("ambient");
 
 			shader->setVec3(ambient.c_str(), light->ambient);
 
-			std::string specular = default;
+			std::string specular = defStr;
 			specular.append("specular");
 
 			shader->setVec3(specular.c_str(), light->specular);
 
-			std::string color = default;
+			std::string color = defStr;
 			color.append("color");
 
 			shader->setVec3(color.c_str(), light->color);
@@ -324,35 +324,35 @@ public:
 
 		for (auto light : OrbLights)
 		{
-			std::string default = "lights[";
-			default.append(std::to_string(index));
-			default.append("].");
+			std::string defStr = "lights[";
+			defStr.append(std::to_string(index));
+			defStr.append("].");
 
 
-			std::string position = default;
+			std::string position = defStr;
 			position.append("position");
 
 			glm::vec3 coord = glm::vec3(light->orbit(time) * glm::vec4(light->origin, 1.0f));
 
 			shader->setVec3(position.c_str(), coord);
 
-			std::string diffuse = default;
+			std::string diffuse = defStr;
 			diffuse.append("diffuse");
 
 			shader->setVec3(diffuse.c_str(), light->diffuse);
 
 
-			std::string ambient = default;
+			std::string ambient = defStr;
 			ambient.append("ambient");
 
 			shader->setVec3(ambient.c_str(), light->ambient);
 
-			std::string specular = default;
+			std::string specular = defStr;
 			specular.append("specular");
 
 			shader->setVec3(specular.c_str(), light->specular);
 
-			std::string color = default;
+			std::string color = defStr;
 			color.append("color");
 
 			shader->setVec3(color.c_str(), light->color);

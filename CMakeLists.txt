@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-
+set(CMAKE_MIN_REQ_VERSION "3.10")
 # set the project name
 project("FBXLoader")
 
@@ -13,7 +13,10 @@ add_subdirectory(Dependencies/vendor/glfw)
 
 add_subdirectory(Dependencies/vendor/glad)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17")
+
 if(MSVC)
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MTd")
 	
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -23,10 +26,16 @@ if(MSVC)
 
 
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11")
-    if(NOT WIN32)
-        set(GLAD_LIBRARIES g dl GL GLU glfw X11 Xxf86vm Xrandr pthread Xi Xinerama Xcursor assimp)
-    endif()
+	if(UNIX)
+		message("Linux")
+
+		set(FBX_ROOT "$ENV{HOME}/FBXSDK")
+
+		set(GLAD_LIBRARIES g dl GL GLU glfw X11 Xxf86vm Xrandr pthread Xi Xinerama Xcursor )
+
+		set(FBX_SHARED 1)
+		include(CMakeSettings.txt)
+	endif()
 endif()
 
 
@@ -37,13 +46,13 @@ include_directories(Dependencies/include/
 					Dependencies/vendor/glad/include/
 					Dependencies/vendor/imgui
 					Dependencies/vendor/imgui/examples
-					${FBXSDKpath}/include
+					${FBX_ROOT}/include
 					)
 
 # add source files
 file(GLOB VENDORS_SOURCES Dependencies/vendor/glad/src/glad.c)
 file(GLOB PROJECT_SOURCES Dependencies/source/*.cpp Dependencies/source/*.c)
-file(GLOB PROJECT_HEADERS Dependencies/include/*h)
+file(GLOB PROJECT_HEADERS Dependencies/include/*.h)
 file(GLOB PROJECT_SHADERS
 		Dependencies/shaders/*.glsl)
 file(GLOB PROJECT_GEOMETRY_SHADERS
@@ -71,14 +80,12 @@ add_executable(${PROJECT_NAME}
 							${IMGUI})
 
 
-target_link_libraries(${PROJECT_NAME} 
-								glfw 
+target_link_libraries(${PROJECT_NAME}
 								${GLFW_LIBRARIES} 
-								${GLAD_LIBRARIES}
-								${FBXSDK_LIBRARIES} 
-								${FBXSDKpath}/lib/vs2017/x64/debug/libfbxsdk-md.lib
-								${FBXSDKpath}/lib/vs2017/x64/debug/libxml2-md.lib
-								${FBXSDKpath}/lib/vs2017/x64/debug/zlib-md.lib)
+								${GLAD_LIBRARIES} 
+								glfw
+								${FBX_REQUIRED_LIBS_DEPENDENCY}
+								)
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
