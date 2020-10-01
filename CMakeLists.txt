@@ -13,7 +13,6 @@ add_subdirectory(Dependencies/vendor/glfw)
 
 add_subdirectory(Dependencies/vendor/glad)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17")
 
 if(MSVC)
 
@@ -21,13 +20,16 @@ if(MSVC)
 	
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 
-	set(FBXSDKpath "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1")
+	set(FBX_ROOT "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1")
 
-
+	set(FBX_SHARED 1)
+	include(CMakeSettings.txt)
+	message("AAAAAAAAAAAAAAAAAAA ${FBX_REQUIRED_LIBS_DEPENDENCY}")
 
 else()
 	if(UNIX)
 		message("Linux")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17")
 
 		set(FBX_ROOT "$ENV{HOME}/FBXSDK")
 

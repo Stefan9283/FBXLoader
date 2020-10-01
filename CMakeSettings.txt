@@ -1,3 +1,9 @@
+
+
+
+
+
+
 # ===================================================================================
 #
 # PRE-REQUISITES
@@ -188,6 +194,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
+
 SET(FBX_SDK libfbxsdk${LIB_EXTENSION})
 IF(WIN32)
     IF(CMAKE_CONFIGURATION_TYPES)      
@@ -195,7 +202,8 @@ IF(WIN32)
         set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "Reset the configurations to what we need" FORCE)
     ENDIF()
     
-    SET(FBX_VARIANT "$(Configuration)")
+
+
     IF(MSVC_VERSION EQUAL 1700)
         SET(FBX_COMPILER "vs2012")
     ELSEIF(MSVC_VERSION EQUAL 1800)
@@ -204,8 +212,15 @@ IF(WIN32)
         SET(FBX_COMPILER "vs2015")
     ELSEIF(MSVC_VERSION EQUAL 1911)
         SET(FBX_COMPILER "vs2017")
+    ELSEIF(MSVC_VERSION GREATER 1920)
+        SET(FBX_COMPILER "vs2017")
     ENDIF()
-    SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${FBX_ARCH}/${FBX_VARIANT}")
+
+        set(Configuration "Debug")
+    message("CCCCCCCCCCCCCC ${Configuration}")
+
+
+    SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${FBX_ARCH}/${Configuration}")
     SET(FBX_SDK_ABS ${FBX_TARGET_LIBS_PATH}/${FBX_SDK})
     SET(FBX_REQUIRED_LIBS_DEPENDENCY ${FBX_SDK_ABS})
     IF(NOT FBX_SHARED)
@@ -242,13 +257,13 @@ ELSE()
 
 
     IF(APPLE)
-        SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${FBX_VARIANT}")
+        SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${Configuration}")
         IF(FBX_COMPILER STREQUAL "gcc")
-            SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/ub/${FBX_VARIANT}")
+            SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/ub/${Configuration}")
         ENDIF()
         SET(FBX_EXTRA_LIBS_PATH ${FBX_TARGET_LIBS_PATH}/lib)
     ELSEIF(LINUX)
-        SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${FBX_ARCH}/${FBX_VARIANT}")
+        SET(FBX_TARGET_LIBS_PATH "${FBX_ROOT}/lib/${FBX_COMPILER}/${FBX_ARCH}/${Configuration}")
 
         SET(FBX_EXTRA_LIBS_PATH ${FBX_TARGET_LIBS_PATH}/lib)
     ENDIF()
