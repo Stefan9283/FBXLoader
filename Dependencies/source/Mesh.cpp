@@ -1,6 +1,5 @@
 #include "Mesh.h"
 
-#define SHOWPREPAREFEEDBACK false
 void Mesh::prepare()
 {
     assert(vertices.size() != 0);

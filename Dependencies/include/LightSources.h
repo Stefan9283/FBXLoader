@@ -34,7 +34,8 @@ public:
 	
 	void Draw(double time, Shader* shader, std::vector<Texture>* textures, std::vector<Material>* materials)
 	{
-		body->Draw(shader, textures, materials);
+		glm::mat4 transform = glm::translate(glm::mat4(1), position);
+		body->Draw(shader, textures, materials, transform);
 	}
 
 };

@@ -1,6 +1,5 @@
 #include "Animations.h"
 
-
 // WIP
 void freeSkellyBoi(Bone* node)
 {
@@ -9,7 +8,7 @@ void freeSkellyBoi(Bone* node)
 
     delete node;
 }
-Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int *index)
+Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int *index, glm::mat4 *parentMatrix)
 {
 
     Bone* NBone = new Bone;
@@ -18,11 +17,12 @@ Bone* addToSkellyBoi(std::vector<Bone*>* bones, FbxNode* node, unsigned int *ind
 
     NBone->name = node->GetName();
     NBone->ID = *index;
+    NBone->Transform = (*parentMatrix) * extractTransformFromNode(node);
     (*index)++;
     bones->push_back(NBone);
     for (auto i = 0; i < node->GetChildCount(); i++)
     {
-        NBone->children.push_back(addToSkellyBoi(bones, node->GetChild(i), index));
+        NBone->children.push_back(addToSkellyBoi(bones, node->GetChild(i), index, &NBone->Transform));
         NBone->children[NBone->children.size() - 1]->parent = NBone;
     }
     return NBone;
@@ -36,13 +36,18 @@ Bone* createSkellyboi(FbxNode* node, std::vector<Bone*>* bones)
 
     Bone* SkellyBoi = new Bone;
     SkellyBoi->name = node->GetName();
+    
+    //////////////////////////////////////////////////////////////////
+    SkellyBoi->Transform = extractTransformFromNode(node);
+    //////////////////////////////////////////////////////////////////
+
     unsigned int index = 0;
     SkellyBoi->ID = index;
     index++;
     bones->push_back(SkellyBoi);
     for (auto i = 0; i < node->GetChildCount(); i++)
     {
-        SkellyBoi->children.push_back(addToSkellyBoi(bones, node->GetChild(i), &index));
+        SkellyBoi->children.push_back(addToSkellyBoi(bones, node->GetChild(i), &index, &SkellyBoi->Transform));
         SkellyBoi->children[SkellyBoi->children.size() - 1]->parent = SkellyBoi;
     }
     return SkellyBoi;

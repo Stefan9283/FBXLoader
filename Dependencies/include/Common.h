@@ -49,3 +49,10 @@
 
 #include "Structs.h"
 #include "Debug.h"
+
+
+#define SHOWLOADEDTEXFEEDBACK false
+#define SHOWTEXTUREFEEDBACK false
+#define SHOWPREPAREFEEDBACK false
+
+#include "Utils.h"

@@ -3,7 +3,6 @@ set(CMAKE_MIN_REQ_VERSION "3.10")
 # set the project name
 project("FBXLoader")
 
-set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -24,7 +23,6 @@ if(MSVC)
 
 	set(FBX_SHARED 1)
 	include(CMakeSettings.txt)
-	message("AAAAAAAAAAAAAAAAAAA ${FBX_REQUIRED_LIBS_DEPENDENCY}")
 
 else()
 	if(UNIX)
@@ -67,11 +65,15 @@ file(GLOB IMGUI
 
 
 source_group("shaders" FILES ${PROJECT_SHADERS})
+source_group("geom shaders" FILES ${PROJECT_GEOMETRY_SHADERS})
+
 source_group("imgui"   FILES ${IMGUI})
 
 #source_group("geometry" FILES ${PROJECT_GEOMETRY_SHADERS})
 
 add_definitions(-DGLFW_INCLUDE_NONE -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
+
+set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 # add to the executable
 add_executable(${PROJECT_NAME} 
@@ -79,6 +81,7 @@ add_executable(${PROJECT_NAME}
 							${PROJECT_SOURCES} 
 							${PROJECT_HEADERS}
 							${PROJECT_SHADERS}
+							${PROJECT_GEOMETRY_SHADERS}
 							${IMGUI})
 
 

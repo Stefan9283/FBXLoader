@@ -1,33 +1,10 @@
 #include "App.h"
 
-#define SHOWTEXTUREFEEDBACK false
-
 int App::TexturelIsLoaded(Texture tex)
 {
     for (auto i=0;i<LoadedTextures.size();i++)
         if (LoadedTextures[i].filename == tex.filename)return i;
     return -1;
-}
-void fixPath(std::string* path)
-{
-    for (int i = 0; i < (*path).size()-1; i++)
-    {
-        if ((*path)[i] == '\\' && (*path)[i + 1] != ' ')
-            (*path)[i]='/';
-
-        //std::cout << (*path)[i] << "\n";
-    }
-
-}
-
-// CONVERT FUNC
-void printFbxDouble3(FbxDouble3 v)
-{
-    std::cout << v[0] << " " << v[1] << " " << v[2] << "\n";
-}
-glm::vec3 FbxDouble3tovec3(FbxDouble3 v)
-{
-    return glm::vec3(v[0], v[1], v[2]);
 }
 int App::MaterialIsLoaded(Material m)
 {
@@ -41,6 +18,20 @@ int App::MaterialIsLoaded(Material m)
     return -1;
 
 }
+
+/*
+void fixPath(std::string* path)
+{
+    for (int i = 0; i < (*path).size()-1; i++)
+    {
+        if ((*path)[i] == '\\' && (*path)[i + 1] != ' ')
+            (*path)[i]='/';
+
+        //std::cout << (*path)[i] << "\n";
+    }
+
+}
+*/
 
 // LEGACY FUNC
 Mesh* App::extractNodeMesh(FbxNode* pNode)
@@ -93,7 +84,6 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
     //std::cout << glm::to_string(newMesh->Transform) << "\n";
 
 #pragma endregion
-
 #pragma region TEXTURES
 
     int materialCount = pNode->GetSrcObjectCount<FbxSurfaceMaterial>();
@@ -172,7 +162,7 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
                             newTex.filename = f->GetFileName();
                             newTex.type = type;
 
-                            fixPath(&newTex.filename);
+                            //fixPath(&newTex.filename);
 
 
                             if (SHOWTEXTUREFEEDBACK)
@@ -217,7 +207,7 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
                         newTex.type = type;
 
 
-                        fixPath(&newTex.filename);
+                        //fixPath(&newTex.filename);
 
                         if (SHOWTEXTUREFEEDBACK)
                             std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
@@ -237,7 +227,6 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
             }
         }
 #pragma endregion
-
 #pragma region MATERIAL
     Material material;
 
@@ -308,8 +297,6 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
     }
     else newMesh->matIndex = matIndex;
 #pragma endregion
-
-
 #pragma region VERTICES
     int currentIndex = 0;
 
@@ -419,22 +406,14 @@ Mesh* App::extractNodeMesh(FbxNode* pNode)
 #pragma endregion
 
     return newMesh;
-
 }
 
+
+// CURRENT FUNCS
 Mesh* App::getMeshData(FbxMesh* mesh, int material_index)
 {
 
     Mesh* newMesh = new Mesh;
-
-    /*
-    for (auto i = 0; i < mesh->GetDeformerCount(); i++)
-    {
-        FbxDeformer* def = mesh->GetDeformer(i);
-        std::cout << def->GetName() << "\n";
-
-    }*/
-    
 
 #pragma region MATERIAL
     Material material;
@@ -619,49 +598,10 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
     if (hasMeshes)
     {
 
-#pragma region TRANSFORM
-
-        FbxAMatrix geometricMatrix;
-        geometricMatrix.SetIdentity();
-
-        FbxVector4 rotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
-        FbxVector4 translation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
-        FbxVector4 scaling = node->GetGeometricScaling(FbxNode::eSourcePivot);
-        geometricMatrix.SetT(translation);
-        geometricMatrix.SetR(rotation);
-        geometricMatrix.SetS(scaling);
-
-        FbxAMatrix localMatrix = node->EvaluateLocalTransform();
-
-        FbxNode* pParentNode = node->GetParent();
-        FbxAMatrix parentMatrix = pParentNode->EvaluateLocalTransform();
-        while ((pParentNode = pParentNode->GetParent()) != NULL)
-        {
-            parentMatrix = pParentNode->EvaluateLocalTransform() * parentMatrix;
-        }
-
-        FbxAMatrix matrix = parentMatrix * localMatrix * geometricMatrix;
-
-        translation = matrix.GetT();
-        scaling = matrix.GetS();
-        rotation = matrix.GetR();
-
-        glm::mat4 T, R1, R2, R3, S;
-
-        T = glm::translate(glm::mat4(1), glm::vec3(translation[0], translation[1], translation[2]));
-
-        R1 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
-        R2 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
-        R3 = glm::rotate(glm::mat4(1), (float)glm::radians(rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        S = glm::scale(glm::mat4(1), glm::vec3(scaling[0], scaling[1], scaling[2]));
-
-        glm::mat4 transform_matrix = T * R2 * R3 * R1 * S;
-
-        //std::cout << glm::to_string(newMesh->Transform) << "\n";
-
-#pragma endregion
-#pragma region TEXTURES
+        #pragma region TRANSFORM
+        glm::mat4 transform_matrix = extractTransformFromNode(node);
+        #pragma endregion
+        #pragma region TEXTURES
 
         std::vector<unsigned int> textureIndices;
 
@@ -743,7 +683,7 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                                 newTex.filename = f->GetFileName();
                                 newTex.type = type;
 
-                                fixPath(&newTex.filename);
+                                //fixPath(&newTex.filename);
 
 
                                 if (SHOWTEXTUREFEEDBACK)
@@ -757,10 +697,15 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                                 if (index == -1)
                                 {
                                     LoadedTextures.push_back(newTex);
+                                    LoadedTextures[LoadedTextures.size() - 1].objectCount = 1;
+                                    LoadedTextures[LoadedTextures.size() - 1].id = TextureFromFile(LoadedTextures[LoadedTextures.size() - 1].filename.c_str());
                                     textureIndices.push_back(LoadedTextures.size() - 1);
                                 }
                                 else
+                                {
+                                    LoadedTextures[LoadedTextures.size() - 1].objectCount++;
                                     textureIndices.push_back(index);
+                                }
                             }
                         }
                     }
@@ -787,7 +732,7 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                             newTex.type = type;
 
 
-                            fixPath(&newTex.filename);
+                            //fixPath(&newTex.filename);
 
                             if (SHOWTEXTUREFEEDBACK)
                                 std::cout << "\t\t" << newTex.filename.c_str() << " 2\n";
@@ -797,17 +742,22 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                             if (index == -1)
                             {
                                 LoadedTextures.push_back(newTex);
+                                LoadedTextures[LoadedTextures.size() - 1].objectCount = 1;
+                                LoadedTextures[LoadedTextures.size() - 1].id = TextureFromFile(LoadedTextures[LoadedTextures.size() - 1].filename.c_str());
                                 textureIndices.push_back(LoadedTextures.size() - 1);
                             }
                             else
+                            {
+                                LoadedTextures[LoadedTextures.size() - 1].objectCount++;
                                 textureIndices.push_back(index);
+                            }
 
                         }
                     }
                 }
             }
-#pragma endregion
-#pragma region MESH
+        #pragma endregion
+        #pragma region MESH
 
 
         for (auto i = 0; i < node->GetNodeAttributeCount(); i++)
@@ -819,7 +769,6 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                 FbxLayerElementArrayTemplate<int>* arr;
                 nodeAttrib->GetMaterialIndices(&arr);
 
-
                 meshes->push_back(getMeshData(nodeAttrib, arr->GetAt(0)));
                 (*meshes)[meshes->size() - 1]->Transform = transform_matrix;
 
@@ -829,7 +778,7 @@ void App::recursiveReadMeshes(FbxNode* node, std::vector<Mesh*>* meshes)
                 }
             }
         }
-#pragma endregion
+        #pragma endregion
 
     }
     for (auto i = 0; i < node->GetChildCount(); i++)
@@ -936,18 +885,18 @@ Model* App::ReadFBX(const char* path)
         mesh->prepare();
 
     //WIP
-#pragma region ARMATURE/ANIMATIONS
+    #pragma region ARMATURE/ANIMATIONS
     new_model->SkellyBoi = createSkellyboi(lScene->GetRootNode(), &(new_model->Bones));
-    std::cout << "Bones count " << new_model->Bones.size() << "\n";
+    //std::cout << "Bones count " << new_model->Bones.size() << "\n";
 
     int numStacks = lScene->GetSrcObjectCount<FbxAnimStack>();//(FBX_TYPE(FbxAnimStack));
-    std::cout << "Anim Count " << numStacks << "\n";
+    //std::cout << "Anim Count " << numStacks << "\n";
 
     //std::vector<Animation> animations;
     for (auto i = 0; i < numStacks; i++)
     {
         FbxAnimStack* animStack = FbxCast<FbxAnimStack>(lScene->GetSrcObject<FbxAnimStack>(i));//lScene->GetCurrentAnimationStack();
-        std::cout << animStack->GetName() << "\n";
+        //std::cout << animStack->GetName() << "\n";
 
         int numLayers = animStack->GetMemberCount<FbxAnimLayer>();
         for (int j = 0; j < numLayers; j++)
@@ -1106,7 +1055,8 @@ Model* App::ReadFBX(const char* path)
                         {
                             anim.keyframes.resize(ID + 1);
                         }
-                        anim.keyframes[ID] = (keyfr);
+                        
+                        anim.keyframes[ID] = keyfr;
 
                         break;
 
@@ -1120,10 +1070,11 @@ Model* App::ReadFBX(const char* path)
             new_model->animations.push_back(anim);
         }
     }
-
-#pragma endregion
+    #pragma endregion
     //WIP
 
+
+    
 
      // Destroy the SDK manager and all the other objects it was handling.
     lSdkManager->Destroy();

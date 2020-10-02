@@ -23,7 +23,6 @@ uniform mat4 model;
 uniform mat4 mesh_model;
 uniform vec3 cameraPos;
 
-
 struct LightSource
 {
     vec3 color;
@@ -33,7 +32,6 @@ struct LightSource
     vec3 position;
 };
 
-
 struct Material
 {
     vec3 ambient;
@@ -42,7 +40,6 @@ struct Material
     vec3 specular;
     float shininess;
 };
-
 
 in VS_OUT{
     vec3 FragPos;
@@ -99,6 +96,8 @@ vec3 calculateColor(LightSource Light)
 
 vec3 calculateColorNoTex(LightSource Light)
 {
+
+
     //Light.position = LightPos;
     vec3 lightDir = normalize(Light.position - FragPos);
     vec3 norm = normalize(Norm);
@@ -111,6 +110,7 @@ vec3 calculateColorNoTex(LightSource Light)
     vec3 diffuse;
     vec3 ambient;
     vec3 specular;
+
     if (DiffuseColorCount <= 0)
     {
         color = material.diffuse;
@@ -132,8 +132,81 @@ vec3 calculateColorNoTex(LightSource Light)
     return (ambient + diffuse + specular) * Light.color;
 }
 
+
+
+
+vec3 calculateColorNEWFUNC(LightSource Light)
+{
+    if (NormalMapCount > 0)
+    {
+        vec3 lightpos = fs_in.TBN * Light.position;
+
+        vec3 normal = Norm;
+
+        normal = texture(NormalMap[0], texCoords).rgb;
+        normal = 2.0 * normal - 1.0;
+
+        // normal
+        vec3 lightDir = normalize(lightpos - fs_in.TangentFragPos);
+        vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
+
+        //color
+        vec3 color;
+        if (DiffuseColorCount>0)
+            color = texture(DiffuseColor[0], texCoords).rgb;
+        else color = material.diffuse;
+
+        // ambient
+        vec3 ambient = color * Light.ambient;
+
+        // diffuse
+        float diff = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = color * diff * Light.diffuse;
+
+        // specular
+        vec3 reflectDir = reflect(-lightDir, normal);
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+
+        vec3 specular = spec * Light.specular;
+
+        return (ambient + diffuse + specular) * Light.color;
+    }
+    else
+    {
+
+        vec3 lightDir = normalize(Light.position - FragPos);
+        vec3 norm = normalize(Norm);
+        float diff = max(dot(norm, lightDir), 0.0);
+
+        vec3 reflectDir = reflect(-lightDir, norm);
+
+        vec3 color;
+        vec3 diffuse;
+        vec3 ambient;
+        vec3 specular;
+
+        if (DiffuseColorCount > 0)
+            color = texture(DiffuseColor[0], texCoords).rgb;
+        else color = material.diffuse;
+
+        diffuse = color * diff;
+        ambient = Light.ambient * material.ambient;
+        float spec = pow(max(dot(norm, reflectDir), 0.0), material.shininess);
+        specular = Light.specular * diffuse * spec;
+
+        diffuse = diffuse * Light.diffuse;
+
+
+        return (ambient + diffuse + specular) * Light.color;
+    }
+
+}
+
 void main()
 {
+
+    /*
     if (NormalMapCount > 0)
     {
 
@@ -163,5 +236,21 @@ void main()
        
         gl_FragColor = vec4(result, 1.0f);
         
+    }*/
+
+    if (NUM_OF_LIGHTS == 0)
+        gl_FragColor = vec4(material.diffuse, 1.0f);
+    else
+    {
+        vec3 result = vec3(0.0f, 0.0f, 0.0f);
+
+        for (int i = 0; i < NUM_OF_LIGHTS; i++)
+        {
+            result += calculateColorNEWFUNC(lights[i]);
+        }
+
+        gl_FragColor = vec4(result, 1.0f);
     }
+
+
 };

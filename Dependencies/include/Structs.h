@@ -12,7 +12,7 @@ struct Vertex
 struct Texture
 {
     std::string filename, type;
-    unsigned int id;
+    unsigned int id, objectCount;
 };
 
 struct Material
@@ -26,6 +26,7 @@ struct Bone
     std::string name;
     unsigned int ID;
     std::vector<Bone*> children;
+    glm::mat4 Transform;
     Bone* parent;
 };
 

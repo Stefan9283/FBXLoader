@@ -1,7 +1,5 @@
 #include "Shader.h"
 
-
-
 ShaderProgramSource Shader::ParseShader(const char* filepath_v, const char* filepath_f)
 {
     ShaderProgramSource source;
@@ -70,8 +68,6 @@ unsigned int Shader::CreateShader(const char* vertexShader, const char* fragment
     glDeleteShader(fs);
     return program;
 }
-
-
 
 unsigned int Shader::CompileShader(unsigned int type, const char* source)
 {

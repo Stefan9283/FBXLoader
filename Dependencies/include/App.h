@@ -1,7 +1,6 @@
 #pragma once
 
 #define STB_IMAGE_IMPLEMENTATION
-#define SHOWLOADEDTEXFEEDBACK false
 
 #include "Common.h"
 
@@ -46,13 +45,12 @@ public:
 
 
 		if (SHOWLOADEDTEXFEEDBACK)
-			std::cout << "Textures that should be loaded\n";
-		for (auto i = 0; i < LoadedTextures.size(); i++)
 		{
-			LoadedTextures[i].id = TextureFromFile(LoadedTextures[i].filename.c_str());
-			if (SHOWLOADEDTEXFEEDBACK)
+			std::cout << "Textures that should be loaded\n";
+			for (auto i = 0; i < LoadedTextures.size(); i++)
 				std::cout << "\t" << LoadedTextures[i].filename.c_str() << " id:" << LoadedTextures[i].id << "\n";
 		}
+
 
 		ImGui::CreateContext();
 		ImGui_ImplGlfw_InitForOpenGL(w.window, true);
@@ -103,6 +101,9 @@ public:
 			glfwSwapBuffers(w.window);
 			glfwPollEvents();
 			
+			if (glfwGetKey(w.window, GLFW_KEY_F))
+				createStaticLightSource("obj/Cube.fbx", cam->position);
+
 			if (glfwGetKey(w.window, GLFW_KEY_ESCAPE))
 				break;
 
@@ -199,13 +200,69 @@ public:
 							OrbLights[i]->specular = glm::vec3(tmp.x, tmp.y, tmp.z);
 							
 							ImGui::SliderFloat("radius", &(*OrbLights[i]).radius, -90, 90);
+
+							bool destroyObj = false;
+							ImGui::Checkbox("Destroy Object?", &destroyObj);
+							if (destroyObj)
+							{
+								OrbLights.erase(OrbLights.begin() + i);
+								ImGui::End();
+								break;
+							}
+
 							ImGui::End();
 						}
 					}
 				}
 				if (ImGui::CollapsingHeader("Static"))
 				{
+					for (int i = 0; i < StatLights.size(); i++)
+					{
+						std::string obj_identifier = StatLights[i]->body->name + std::to_string(i);
 
+						if (ImGui::CollapsingHeader(obj_identifier.c_str()))
+						{
+							ImGui::Begin(obj_identifier.c_str());
+
+							ImVec4 tmp;
+
+
+
+							ImGui::SliderFloat("tx", &StatLights[i]->body->Position.x, -100, 100);
+							ImGui::SliderFloat("ty", &StatLights[i]->body->Position.y, -100, 100);
+							ImGui::SliderFloat("tz", &StatLights[i]->body->Position.z, -100, 100);
+							ImGui::SliderFloat("rx", &StatLights[i]->body->axis_rotations.x, -90, 90);
+							ImGui::SliderFloat("ry", &StatLights[i]->body->axis_rotations.y, -90, 90);
+							ImGui::SliderFloat("rz", &StatLights[i]->body->axis_rotations.z, -90, 90);
+
+
+							tmp = ImVec4(StatLights[i]->color.x, StatLights[i]->color.y, StatLights[i]->color.z, 1.0f);
+							ImGui::ColorEdit3("Light Source Color", (float*)&tmp);
+							StatLights[i]->color = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							tmp = ImVec4(StatLights[i]->ambient.x, StatLights[i]->ambient.y, StatLights[i]->ambient.z, 1.0f);
+							ImGui::ColorEdit3("Ambient", (float*)&tmp);
+							StatLights[i]->ambient = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							tmp = ImVec4(StatLights[i]->diffuse.x, StatLights[i]->diffuse.y, StatLights[i]->diffuse.z, 1.0f);
+							ImGui::ColorEdit3("Diffuse", (float*)&tmp);
+							StatLights[i]->diffuse = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							tmp = ImVec4(StatLights[i]->specular.x, StatLights[i]->specular.y, StatLights[i]->specular.z, 1.0f);
+							ImGui::ColorEdit3("Specular", (float*)&tmp);
+							StatLights[i]->specular = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+							bool destroyObj = false;
+							ImGui::Checkbox("Destroy Object?", &destroyObj);
+							if (destroyObj)
+							{
+								StatLights.erase(StatLights.begin() + i);
+								ImGui::End();
+								break;
+							}
+							ImGui::End();
+						}
+					}
 				}
 
 			}
@@ -381,3 +438,5 @@ public:
 	// LEGACY FUNC
 	Mesh* extractNodeMesh(FbxNode* pNode);
 };
+
+glm::mat4 extractTransformFromNode(FbxNode* node);
