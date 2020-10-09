@@ -7,7 +7,7 @@ class LightSource
 {
 public:
 	Model* body;
-	glm::vec3 color, diffuse, ambient, specular;
+	glm::vec3 color, diffuse, ambient, specular, position;
 
 
 	LightSource()
@@ -28,7 +28,6 @@ public:
 class StaticLightSource : public LightSource
 {
 public:
-	glm::vec3 position;
 	StaticLightSource(){}
 	~StaticLightSource(){}
 	
@@ -49,13 +48,14 @@ public:
 	{
 		this->radius = 30.0f;
 		this->origin = glm::vec3(0.0f);
-		angularVel = 1.0f;
+		angularVel = 100.0f;
 	}
 	~OrbitingLightSource(){}
 
 	void Draw(double time, Shader * shader, std::vector<Texture>* textures, std::vector<Material>* materials)
 	{
 		glm::mat4 transform = orbit(time);
+		position = transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		body->Draw(shader, textures, materials, transform);
 	}
 

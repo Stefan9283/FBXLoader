@@ -8,6 +8,16 @@ void Model::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mat
     for (auto mesh : meshes)
         mesh->Draw(shader, textures, materials);
 }
+
+void Model::DrawtoDepthMap(Shader* shader, glm::mat4 additionanTransform)
+{
+    glm::mat4 transform = additionanTransform * getModelMatrix();
+    shader->setMat4("model", &transform);
+    for (auto mesh : meshes)
+        mesh->DrawtoDepthMap(shader);
+}
+
+
 Model::~Model()
 {
     for (auto mesh : meshes)

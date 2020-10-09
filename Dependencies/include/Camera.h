@@ -11,6 +11,7 @@ public:
     float yaw, pitch, roll;
 	glm::vec3 position, up;
     glm::mat4 proj, view;
+    float fovy, zNear, zFar;
     Camera(GLFWwindow* window)
     {
         glfwGetCursorPos(window, &lastx_mouse, &lasty_mouse);
@@ -30,7 +31,7 @@ public:
 
     void reset_camera()
     {
-        position = glm::vec3(0.0f, 0.0f, 10.0f);
+        position = glm::vec3(0.0f, 0.0f, 0.0f);
         up = glm::vec3(0.0f, 1.0f, 0.0f);
 
         yaw = -90.0f;
@@ -39,7 +40,9 @@ public:
 
         goFront = glm::vec3(0.0f, 0.0f, -1.0f);
         goUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        goRight = glm::vec3(-1.0f, 0.0f, 0.0f);
+        goRight = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        fovy = 45.0f; zNear = 0.1f; zFar = 10000.0f;
     }
 
 
@@ -48,16 +51,7 @@ public:
     {
         return &view;
     }
-    void update_view()
-    {
-        view = glm::lookAt(position, position + goFront, goUp);
-    }
-    void update_proj(GLFWwindow *window)
-    {
-        int w, h;
-        glfwGetWindowSize(window, &w, &h);
-        proj = glm::perspective(glm::radians(45.0f), (float)w / (float)h, 0.1f, 10000.0f);
-    }
+    
     glm::mat4* getprojmatrix()
     {
         return &proj;
@@ -86,13 +80,13 @@ public:
             yaw += offsetx;
             pitch += offsety;
 
-            goFront = glm::normalize(goFront * (float)cos(glm::radians(offsetx)) - goRight * (float)sin(glm::radians(offsetx)));
+            goFront = glm::normalize(goFront * (float)cos(glm::radians(offsetx)) + goRight * (float)sin(glm::radians(offsetx)));
             goFront = glm::normalize(goFront);
 
             goFront = glm::normalize(goFront * (float)cos(glm::radians(offsety)) + goUp * (float)sin(glm::radians(offsety)));
             goFront = glm::normalize(goFront);
 
-            goRight = glm::normalize(glm::cross(goUp, goFront));
+            goRight = -glm::normalize(glm::cross(goUp, goFront));
 
 
             if (pitch > 89.0f)
@@ -118,11 +112,11 @@ public:
 
 
         // right left
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         {
             position += speed * goRight;
         }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         {
             position -= speed * goRight;
         }
@@ -148,7 +142,21 @@ public:
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             speed = 2;
 
+        update_proj(window);
     }
 
+    void update_proj(GLFWwindow* window)
+    {
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        //proj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 10000.0f);
+        proj = glm::perspective(glm::radians(fovy), (float)w / (float)h, zNear, zFar);
+    }
+private:
+    void update_view()
+    {
+        view = glm::lookAt(position, position + goFront, goUp);
+    }
+    
 
 };

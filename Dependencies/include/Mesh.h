@@ -17,6 +17,7 @@ public:
 
     void prepare();
     void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials);
+    void DrawtoDepthMap(Shader* shader);
 
     Mesh();
     ~Mesh();

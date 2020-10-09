@@ -60,6 +60,7 @@ public:
     }
     ~Shader(){}
 
+private:
     // reads the shaders from the files and returns a ShaderProgramSource struct
     ShaderProgramSource ParseShader(const char* filepath_v, const char* filepath_f);
     

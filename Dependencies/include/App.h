@@ -13,6 +13,8 @@
 #include "Structs.h"
 #include "LightSources.h"
 
+#include "Primitives.h"
+
 class App
 {
 public:
@@ -26,8 +28,6 @@ public:
 
 	std::vector<Material> Materials;
 
-
-
 	App() { 
 	
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -37,11 +37,10 @@ public:
 		createOrbitingLightSource("obj/helmet.fbx");
 
 
-		shader = new Shader("Dependencies/shaders/vertex.glsl", "Dependencies/shaders/fragment.glsl");
-
-
+		shader = new Shader("Dependencies/shaders/texVert.glsl", "Dependencies/shaders/texFrag.glsl");
 
 		cam = new Camera(w.window);
+
 
 
 		if (SHOWLOADEDTEXFEEDBACK)
@@ -57,7 +56,6 @@ public:
 		ImGui_ImplOpenGL3_Init("#version 130");
 		ImGui::StyleColorsDark();
 	}
-
 	~App()
 	{
 		ImGui::DestroyContext();
@@ -73,22 +71,89 @@ public:
 
 	}
 
+	bool wasLeftMouseButtonHeld;
+	bool genRayFromCenter = false;
+	bool genRayFromCursor = true;
+	Ray* ray = NULL;
+
+	void GenRay()
+	{
+		
+		if (glfwGetMouseButton(w.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		{
+			wasLeftMouseButtonHeld = true;
+		}
+		else if (glfwGetMouseButton(w.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && wasLeftMouseButtonHeld)
+		{
+			wasLeftMouseButtonHeld = false;
+			
+			
+			if (genRayFromCenter)
+			{
+				if (ray)
+					delete ray;
+				ray = new Ray(cam->position + cam->goFront, glm::normalize(cam->goFront), 100);
+			}
+			else if (genRayFromCursor)
+			{
+				int wi, he;
+
+
+
+				glfwGetWindowSize(w.window, &wi, &he);
+				float x = cam->lastx_mouse - (float)wi/2.0f;
+				float y = he - cam->lasty_mouse - (float)he/2.0f;
+
+				/// x and y scaled to [-1, 1]
+				x /= (float)wi / 2.0f;
+				y /= (float)he / 2.0f;
+
+				float aspectRatio = (float)wi / (float)he;
+
+				if (ray)
+					delete ray;
+
+				glm::vec3 origin = cam->position + (cam->goFront
+					+ glm::tan(glm::radians(cam->fovy) / 2.0f) * aspectRatio * x * glm::normalize(cam->goRight)
+					+ glm::tan(glm::radians(cam->fovy) / 2.0f) * y * glm::normalize(cam->goUp));
+
+				ray = new Ray(origin, glm::normalize(origin - cam->position), 100);
+			}
+			
+		}
+	}
+
 	void Run()
 	{
 
 		std::chrono::high_resolution_clock::time_point start, end;
 		start = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration;
+
+		ShadowQuad quad;
+
+		Shader DepthShader("Dependencies/shaders/depthVert.glsl", "Dependencies/shaders/depthFrag.glsl");
+		Shader PrimitiveShader("Dependencies/shaders/simpleVert.glsl", "Dependencies/shaders/simpleFrag.glsl");
 		
+
+		wasLeftMouseButtonHeld = false;
+
 		while (!glfwWindowShouldClose(w.window))
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			quad.GenDepthMap(&Objects, glm::vec3(10, 0, 0), &DepthShader, w.window);
+			quad.Draw(shader);
+
+			GenRay();
+			if (ray)
+				ray->Draw(&PrimitiveShader, cam);
+
 			cam->Move(w.window);
-			cam->update_proj(w.window);
 			shader->setMat4("view", cam->getviewmatrix());
 			shader->setMat4("proj", cam->getprojmatrix());
 			shader->setVec3("cameraPos", cam->position);
+			
 
 
 			end = std::chrono::high_resolution_clock::now();
@@ -96,31 +161,33 @@ public:
 			
 			DrawEverything(shader, duration.count());
 
-			DisplayIMGUI();
-
-			glfwSwapBuffers(w.window);
-			glfwPollEvents();
 			
-			if (glfwGetKey(w.window, GLFW_KEY_F))
-				createStaticLightSource("obj/Cube.fbx", cam->position);
-
+			DisplayIMGUI();
+			
+			
+			
 			if (glfwGetKey(w.window, GLFW_KEY_ESCAPE))
 				break;
 
 		}
 
+		if (ray)
+			delete ray;
 	}
 	
+private:
 	ImVec4 clear_color;
 	float strength;
-
 
 	// Debug/Testing GUI
 	void DisplayIMGUI()
 	{
 
-		// OTHER INPUTS?
+		// OTHER INPUTS
+		if (glfwGetKey(w.window, GLFW_KEY_F))
+			createStaticLightSource("obj/Cube.fbx", cam->position);
 
+		
 
 		// IMGUI
 		ImGui_ImplOpenGL3_NewFrame();
@@ -130,6 +197,16 @@ public:
 
 			ImGui::Begin("SOME TOOLS");
 			ImGui::Text("This is some useless text.");
+			if (ImGui::CollapsingHeader("Camera Settings"))
+			{
+				ImGui::Begin("Camera");
+
+				ImGui::SliderFloat("fovy", &cam->fovy, -100, 100);
+				ImGui::SliderFloat("zFar", &cam->zFar, 0.01f, 100000.0f);
+				ImGui::SliderFloat("zNear", &cam->zNear, 0.01f, 100000.0f);
+				ImGui::End();
+				cam->update_proj(w.window);
+			}
 
 
 			if (ImGui::CollapsingHeader("Show objects"))
@@ -285,6 +362,8 @@ public:
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+		glfwSwapBuffers(w.window);
+		glfwPollEvents();
 
 	}
 
@@ -319,6 +398,7 @@ public:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 			glGenerateMipmap(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		else {
 			std::cout << "Texture " << name << " can not be opened\n";
@@ -433,7 +513,6 @@ public:
 		OrbitingLight->origin = origin;
 		OrbLights.push_back(OrbitingLight);
 	}
-
 
 	// LEGACY FUNC
 	Mesh* extractNodeMesh(FbxNode* pNode);

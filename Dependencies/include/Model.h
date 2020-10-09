@@ -15,17 +15,20 @@ public:
     glm::vec3 Position, Scaling;
     glm::quat Rotation;
     glm::vec3 axis_rotations, old_axis_rotations;
+    
+    Model();
+    ~Model();
+
     glm::mat4 getModelMatrix();
+
+    void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
+
+    void DrawtoDepthMap(Shader* shader, glm::mat4 additionanTransform = glm::mat4(1));
+
 
     Bone* SkellyBoi;
     std::vector<Bone*> Bones;
     std::vector<Animation> animations;
-
-    void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
-
-    Model();
-    ~Model();
-
 };
 
 

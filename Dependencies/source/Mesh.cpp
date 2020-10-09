@@ -49,7 +49,7 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mate
 
 
     // add textures
-    unsigned int total = 0;
+    unsigned int total = 1; // don't touch texture 0
     for (auto tex_index : texIndices)
     {
 
@@ -93,9 +93,16 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mate
     glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
+
+
+    ///std::cout << "Mesh \n";
+
+    ///std::cout << total << " t\n";
+    
     // Clean textures
-    for (int i = 0; i < total; i++)
+    for (int i = 1; i < total; i++)
     {
+        ///std::cout << i << "\n";
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -108,13 +115,26 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mate
     }
         
 
-    //std::cout << "\n";
+    ///std::cout << "\n";
+
+    shader->unbind();
+}
+void Mesh::DrawtoDepthMap(Shader* shader)
+{
+    shader->setMat4("mesh_model", &Transform);
+    shader->bind();
+
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 
     shader->unbind();
 }
 
+
 Mesh::Mesh()
 {
+    matIndex = -1;
     VAO = 0;
     VBO = 0;
     EBO = 0;
