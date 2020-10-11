@@ -1,11 +1,13 @@
 #pragma once
 #include "Common.h"
 
+
+#ifdef OPENGL
 struct Vertex
 {
     glm::vec3 Position;
     glm::vec3 Normal, Tangent;
-    glm::vec2 TextureCoords;
+    glm::vec2 TextureCoords;    
 };
 
 
@@ -44,3 +46,5 @@ struct Animation
     std::string name;
     std::vector<BoneKeyframes> keyframes;
 };
+
+#endif

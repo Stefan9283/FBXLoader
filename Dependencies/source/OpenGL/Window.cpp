@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "OpenGL/Window.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

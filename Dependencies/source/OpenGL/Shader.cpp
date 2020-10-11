@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "OpenGL/Shader.h"
 
 ShaderProgramSource Shader::ParseShader(const char* filepath_v, const char* filepath_f)
 {

@@ -1,4 +1,4 @@
-#include "Animations.h"
+#include "OpenGL/Animations.h"
 
 // WIP
 void freeSkellyBoi(Bone* node)

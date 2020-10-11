@@ -183,12 +183,14 @@ class ShadowQuad : public Quad
 private:
 	unsigned int depthMapFBO, depthMap;
 	unsigned int rgbMapFBO, rgbMap;
+	const unsigned int RGB_WIDTH = 1024, RGB_HEIGHT = 1024;
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
 public:
 	void GenDepthMap(std::vector<Model*>* Objects, glm::vec3 position, Shader* shader, GLFWwindow* window)
 	{
 		///std::cout << "Fac ceva\n";
 		// 1. first render to depth map
-		const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -219,7 +221,6 @@ public:
 	void GenColorMap(std::vector<Model*>* Objects, Camera* cam, Shader* shader, GLFWwindow* window)
 	{
 		// 1. first render to depth map
-		const unsigned int RGB_WIDTH = 1024, RGB_HEIGHT = 1024;
 
 		glViewport(0, 0, RGB_WIDTH, RGB_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, rgbMapFBO);
@@ -267,15 +268,89 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	}
+	
+	Model* getSelected(std::vector<Model*>* Objects, Camera* cam, Shader* shader, GLFWwindow* window)
+	{
 
+		glViewport(0, 0, RGB_WIDTH, RGB_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, rgbMapFBO);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glm::mat4 lightProjection = *cam->getprojmatrix();
+		glm::mat4 lightView = *cam->getviewmatrix();
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		shader->setMat4("lightSpaceMatrix", &lightSpaceMatrix);
+
+
+		unsigned long long int max = RAND_MAX;
+		float tens = 1;
+		while (max)
+		{
+			max /= 10;
+			tens *= 10;
+		}
+
+		srand(time(NULL));
+
+		std::vector<std::pair<glm::vec3, int>> color4Obj;
+
+		for (auto i=0;i<(*Objects).size(); i++)
+		{
+			glm::vec3 color = glm::vec3(1);
+
+			bool doesntExist = false;
+			while (!doesntExist)
+			{
+				doesntExist = true;
+				color = glm::vec3((float)rand() / tens, (float)rand() / tens, (float)rand() / tens);
+				for (int i = 0; i < color4Obj.size(); i++)
+					if (color4Obj[i].first == color)
+						doesntExist = false;
+			}
+
+			//std::cout << glm::to_string(color) << "\n";
+
+			color4Obj.push_back(std::make_pair(color, i));
+
+			shader->setVec3("color", color);
+			(*Objects)[i]->DrawNoTex(shader);
+		}
+
+
+		
+
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+
+
+		float x = cam->lastx_mouse;// * RGB_WIDTH / (float)w;
+		float y = h - cam->lasty_mouse;// * RGB_HEIGHT / (float)h;
+
+		float data[4];
+		glReadPixels((float)x, (float)y, 1, 1, GL_RGB, GL_FLOAT, data);
+		//std::cout << data[0] << " " << data[1] << " " << data[2] << " " << data[3] << "\n";
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		glViewport(0, 0, w, h);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		float eps = 0.01f;
+		for (auto pair : color4Obj)
+		{
+			if ( abs(pair.first.x - data[0]) <= eps && abs(pair.first.y - data[1]) <= eps && abs(pair.first.z - data[2]) <= eps)
+				return (*Objects)[pair.second];
+		}
+
+		return NULL;
+
+	}
 	void Draw(Shader* shader, int mode)
 	{
 		glm::mat4 identity = glm::identity<glm::mat4>();
 		shader->setMat4("model", &identity);
 		shader->setMat4("mesh_model", &identity);
 
-		
-		
 
 		glActiveTexture(GL_TEXTURE0);
 		shader->setInt("DebugTexture", 0);
@@ -302,8 +377,6 @@ public:
 		// depth 
 		glGenFramebuffers(1, &depthMapFBO);
 
-		const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-
 		glGenTextures(1, &depthMap);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
@@ -323,8 +396,6 @@ public:
 		// rgb
 		glGenFramebuffers(1, &rgbMapFBO);
 
-		const unsigned int RGB_WIDTH = 1024, RGB_HEIGHT = 1024;
-
 		glGenTextures(1, &rgbMap);
 		glBindTexture(GL_TEXTURE_2D, rgbMap);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
@@ -341,7 +412,6 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	}
-	~ShadowQuad() { destroyQuad(); glDeleteFramebuffers(1, &depthMapFBO); glDeleteFramebuffers(1, &rgbMapFBO);
-	}
+	~ShadowQuad() { destroyQuad(); glDeleteFramebuffers(1, &depthMapFBO); glDeleteFramebuffers(1, &rgbMapFBO); }
 };
 

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Common.h"
-#include "Shader.h"
-#include "Structs.h"
 
+#include "OpenGL/Shader.h"
 
 class Mesh
 {

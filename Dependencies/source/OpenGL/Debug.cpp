@@ -1,4 +1,4 @@
-#include "Debug.h"
+#include "OpenGL/Debug.h"
 
 // DEBUG FUNC
 void addTabs(int count)

@@ -3,17 +3,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "Common.h"
+#include "OpenGL/Camera.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/LightSources.h"
+#include "OpenGL/Animations.h"
 
+#include "Mesh.h"
 #include "Model.h"
-#include "Animations.h"
+#include "OpenGL/Primitives.h"
 
-#include "Window.h"
-#include "Camera.h"
-
-#include "Structs.h"
-#include "LightSources.h"
-
-#include "Primitives.h"
 
 class App
 {
@@ -82,9 +80,6 @@ public:
 
 	void GenRay()
 	{
-
-
-		
 		if (glfwGetMouseButton(w.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
 			wasLeftMouseButtonHeld = true;
@@ -126,7 +121,15 @@ public:
 				ray = new Ray(cam->position + cam->goFront, glm::normalize(cam->goFront), 100);
 			}
 
-				
+			ShadowQuad objPicker;
+			Shader DepthShader("Dependencies/shaders/depthVert.glsl", "Dependencies/shaders/depthFrag.glsl");
+			//objPicker.GenColorMap(&Objects, cam, &DepthShader, w.window);
+			Model* hitObj = NULL;
+			if (hitObj = objPicker.getSelected(&Objects, cam, &DepthShader, w.window))
+			{
+
+				std::cout << hitObj->name.c_str() <<  " HIT\n";
+			}
 		}
 	}
 

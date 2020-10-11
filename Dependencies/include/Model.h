@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Common.h"
-#include "Animations.h"
-#include "Shader.h"
 #include "Mesh.h"
-
-
+#include "OpenGL/Shader.h"
+#include "OpenGL/Animations.h"
 
 class Model
 {

@@ -5,6 +5,8 @@
 #include <crtdbg.h>
 #endif
 
+#define OPENGL 1
+
 #include <stdlib.h>
 
 #include <iostream>
@@ -19,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits>  // std::numeric_limits
+
 
 #include <unordered_map>
 #include <map>
@@ -47,12 +50,12 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "Structs.h"
-#include "Debug.h"
-
+#include "OpenGL/Structs.h"
+#include "OpenGL/Debug.h"
 
 #define SHOWLOADEDTEXFEEDBACK false
 #define SHOWTEXTUREFEEDBACK false
 #define SHOWPREPAREFEEDBACK false
 
+#include "OpenGL/Window.h"
 #include "Utils.h"
