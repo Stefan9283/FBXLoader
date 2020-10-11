@@ -5,22 +5,23 @@ class Line
 {
 
 public:
-
+	glm::vec3 color;
 	Line() {}
 
 	Line(glm::vec3 start, glm::vec3 end, glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f))
 	{
+		this->color = color;
 		float somevalue = 0.01f;
 		float vertices[] = {
 			///	 x								y			    z	  
-				 start.x + somevalue, start.y + somevalue, start.z, color.x, color.y, color.z,// 0 
-				 start.x + somevalue, start.y - somevalue, start.z, color.x, color.y, color.z,// 1 
-				 start.x - somevalue, start.y - somevalue, start.z, color.x, color.y, color.z,// 2 
-				 start.x - somevalue, start.y + somevalue, start.z, color.x, color.y, color.z,// 3 
-				   end.x + somevalue,   end.y + somevalue,   end.z, color.x, color.y, color.z,// 4 
-				   end.x + somevalue,   end.y - somevalue,   end.z, color.x, color.y, color.z,// 5 
-				   end.x - somevalue,   end.y - somevalue,   end.z, color.x, color.y, color.z,// 6 
-				   end.x - somevalue,   end.y + somevalue,   end.z, color.x, color.y, color.z // 7 
+				 start.x + somevalue, start.y + somevalue, start.z,// 0 
+				 start.x + somevalue, start.y - somevalue, start.z,// 1 
+				 start.x - somevalue, start.y - somevalue, start.z,// 2 
+				 start.x - somevalue, start.y + somevalue, start.z,// 3 
+				   end.x + somevalue,   end.y + somevalue,   end.z,// 4 
+				   end.x + somevalue,   end.y - somevalue,   end.z,// 5 
+				   end.x - somevalue,   end.y - somevalue,   end.z,// 6 
+				   end.x - somevalue,   end.y + somevalue,   end.z // 7 
 		};
 		unsigned int indices[] = {
 			4, 6, 5,
@@ -51,12 +52,9 @@ public:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
 
-		unsigned int strideSize = 6 * sizeof(float);
+		unsigned int strideSize = 3 * sizeof(float);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, strideSize, (void*)0);
-
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, strideSize, (void*)(3 * sizeof(float)));
 
 
 		glBindVertexArray(0);
@@ -76,6 +74,7 @@ public:
 		shader->setMat4("model", &identity);
 		shader->setMat4("proj", camera->getprojmatrix());
 		shader->setMat4("view", camera->getviewmatrix());
+		shader->setVec3("color", this->color);
 		shader->bind();
 
 		glBindVertexArray(VAO);
@@ -170,13 +169,20 @@ public:
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);
 	}
-	virtual void Draw(Shader* shader) = 0;
+	//virtual void Draw(Shader* shader) = 0;
 
 };
+
+
+
+#define QUAD_DRAW_CONST 0
+#define QUAD_DRAW_DEPTH 1
+#define QUAD_DRAW_COLOR 2
 class ShadowQuad : public Quad
 {
 private:
 	unsigned int depthMapFBO, depthMap;
+	unsigned int rgbMapFBO, rgbMap;
 public:
 	void GenDepthMap(std::vector<Model*>* Objects, glm::vec3 position, Shader* shader, GLFWwindow* window)
 	{
@@ -200,7 +206,7 @@ public:
 		// set matrices here
 
 		for (auto obj : *Objects)
-			obj->DrawtoDepthMap(shader);
+			obj->DrawNoTex(shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -210,18 +216,74 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	}
-	void Draw(Shader* shader) override
+	void GenColorMap(std::vector<Model*>* Objects, Camera* cam, Shader* shader, GLFWwindow* window)
+	{
+		// 1. first render to depth map
+		const unsigned int RGB_WIDTH = 1024, RGB_HEIGHT = 1024;
+
+		glViewport(0, 0, RGB_WIDTH, RGB_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, rgbMapFBO);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// set matrices here
+		float near_plane = 1.0f, far_plane = 40.0f;
+		glm::mat4 lightProjection = *cam->getprojmatrix(); //glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
+		glm::mat4 lightView = *cam->getviewmatrix();
+			/*glm::lookAt(
+			cam->position,
+			cam->position + cam->goFront,  // center
+			cam->goUp); // up*/
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		shader->setMat4("lightSpaceMatrix", &lightSpaceMatrix);
+		// set matrices here
+
+
+		unsigned long long int max = RAND_MAX;
+		double tens = 1;
+		while (max)
+		{
+			max /= 10;
+			tens *= 10;
+		}
+
+		srand(time(NULL));
+
+		//std::cout << (float)rand() / tens << " " << (float)rand() / tens << " " << (float)rand() / tens << "\n";
+
+		for (auto obj : *Objects)
+		{
+			glm::vec3 color = glm::vec3((float)rand() / tens, (float)rand() / tens, (float)rand() / tens);
+			//std::cout << glm::to_string(color) << "\n";
+			shader->setVec3("color", color);
+			obj->DrawNoTex(shader);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		glViewport(0, 0, w, h);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	}
+
+	void Draw(Shader* shader, int mode)
 	{
 		glm::mat4 identity = glm::identity<glm::mat4>();
 		shader->setMat4("model", &identity);
 		shader->setMat4("mesh_model", &identity);
 
+		
+		
 
 		glActiveTexture(GL_TEXTURE0);
 		shader->setInt("DebugTexture", 0);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-
-		shader->setInt("DebugTextureCount", 1);
+		if(mode == 1)
+			glBindTexture(GL_TEXTURE_2D, depthMap);
+		else if (mode == 2)
+			glBindTexture(GL_TEXTURE_2D, rgbMap);
+		shader->setInt("DebugTexMode", mode);
 
 
 		shader->bind();
@@ -229,7 +291,7 @@ public:
 		glDrawElements(GL_TRIANGLES, (GLsizei)indicesCount, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 
-		shader->setInt("DebugTextureCount", 0);
+		shader->setInt("DebugTexMode", 0);
 
 	}
 
@@ -237,6 +299,7 @@ public:
 	{
 		createQuad();
 
+		// depth 
 		glGenFramebuffers(1, &depthMapFBO);
 
 		const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
@@ -256,7 +319,29 @@ public:
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+		// rgb
+		glGenFramebuffers(1, &rgbMapFBO);
+
+		const unsigned int RGB_WIDTH = 1024, RGB_HEIGHT = 1024;
+
+		glGenTextures(1, &rgbMap);
+		glBindTexture(GL_TEXTURE_2D, rgbMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+			RGB_WIDTH, RGB_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, rgbMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rgbMap, 0);
+		//glDrawBuffer(GL_NONE);
+		//glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	}
-	~ShadowQuad() { destroyQuad(); glDeleteFramebuffers(1, &depthMapFBO); }
+	~ShadowQuad() { destroyQuad(); glDeleteFramebuffers(1, &depthMapFBO); glDeleteFramebuffers(1, &rgbMapFBO);
+	}
 };
 

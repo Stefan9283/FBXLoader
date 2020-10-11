@@ -23,7 +23,7 @@ public:
 
     void Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Material> *materials, glm::mat4 additionanTransform = glm::mat4(1));
 
-    void DrawtoDepthMap(Shader* shader, glm::mat4 additionanTransform = glm::mat4(1));
+    void DrawNoTex(Shader* shader, glm::mat4 additionanTransform = glm::mat4(1));
 
 
     Bone* SkellyBoi;

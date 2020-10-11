@@ -119,7 +119,7 @@ void Mesh::Draw(Shader* shader, std::vector<Texture> *textures, std::vector<Mate
 
     shader->unbind();
 }
-void Mesh::DrawtoDepthMap(Shader* shader)
+void Mesh::DrawNoTex(Shader* shader)
 {
     shader->setMat4("mesh_model", &Transform);
     shader->bind();

@@ -53,6 +53,7 @@ public:
 
     Shader(const char* filepath_v, const char* filepath_f)  // new version
     {
+        std::cout << "Reading " << filepath_f << " " << filepath_v << "\n";
         ShaderProgramSource source = ParseShader(filepath_v, filepath_f);
         this->id = CreateShader(source.vertexShader, source.fragmentShader);
         free(source.fragmentShader);

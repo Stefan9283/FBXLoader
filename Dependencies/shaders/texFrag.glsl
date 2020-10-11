@@ -132,14 +132,19 @@ vec3 calculateColorNEWFUNC(LightSource Light)
 }
 
 uniform sampler2D DebugTexture;
-uniform int DebugTextureCount;
+uniform int DebugTexMode;
 
 void main()
 {
 
    
-    if(DebugTextureCount == 1)
-        gl_FragColor = vec4(vec3(texture(DebugTexture, texCoords).r), 1.0f);
+    if (DebugTexMode > 0)
+    {
+        if (DebugTexMode == 1) // depth test
+            gl_FragColor = vec4(vec3(texture(DebugTexture, texCoords).r), 1.0f);
+        else if (DebugTexMode == 2)  // texture test
+            gl_FragColor = texture(DebugTexture, texCoords);
+    }
     else
     {
 

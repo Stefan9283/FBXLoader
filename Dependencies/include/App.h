@@ -33,8 +33,11 @@ public:
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		strength = 100000.0f;
 
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		Objects.push_back(ReadFBX("obj/ROBOT.fbx"));
-		createOrbitingLightSource("obj/helmet.fbx");
+		//createOrbitingLightSource("obj/helmet.fbx");
 
 
 		shader = new Shader("Dependencies/shaders/texVert.glsl", "Dependencies/shaders/texFrag.glsl");
@@ -72,12 +75,15 @@ public:
 	}
 
 	bool wasLeftMouseButtonHeld;
-	bool genRayFromCenter = false;
-	bool genRayFromCursor = true;
+#define genRayFromCursor 1
+#define genRayFromCenter 2
+
 	Ray* ray = NULL;
 
 	void GenRay()
 	{
+
+
 		
 		if (glfwGetMouseButton(w.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
@@ -86,23 +92,16 @@ public:
 		else if (glfwGetMouseButton(w.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && wasLeftMouseButtonHeld)
 		{
 			wasLeftMouseButtonHeld = false;
-			
-			
-			if (genRayFromCenter)
-			{
-				if (ray)
-					delete ray;
-				ray = new Ray(cam->position + cam->goFront, glm::normalize(cam->goFront), 100);
-			}
-			else if (genRayFromCursor)
+
+			int mode = genRayFromCursor;
+
+			if (mode == genRayFromCursor)
 			{
 				int wi, he;
 
-
-
 				glfwGetWindowSize(w.window, &wi, &he);
-				float x = cam->lastx_mouse - (float)wi/2.0f;
-				float y = he - cam->lasty_mouse - (float)he/2.0f;
+				float x = cam->lastx_mouse - (float)wi / 2.0f;
+				float y = he - cam->lasty_mouse - (float)he / 2.0f;
 
 				/// x and y scaled to [-1, 1]
 				x /= (float)wi / 2.0f;
@@ -118,8 +117,16 @@ public:
 					+ glm::tan(glm::radians(cam->fovy) / 2.0f) * y * glm::normalize(cam->goUp));
 
 				ray = new Ray(origin, glm::normalize(origin - cam->position), 100);
+
 			}
-			
+			else if (mode == genRayFromCenter)
+			{
+				if (ray)
+					delete ray;
+				ray = new Ray(cam->position + cam->goFront, glm::normalize(cam->goFront), 100);
+			}
+
+				
 		}
 	}
 
@@ -142,8 +149,10 @@ public:
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			quad.GenDepthMap(&Objects, glm::vec3(10, 0, 0), &DepthShader, w.window);
-			quad.Draw(shader);
+			//quad.GenDepthMap(&Objects, glm::vec3(10, 0, 0), &DepthShader, w.window);
+			//quad.Draw(shader, QUAD_DRAW_DEPTH);
+			quad.GenColorMap(&Objects, cam, &DepthShader, w.window);
+			quad.Draw(shader, QUAD_DRAW_COLOR);
 
 			GenRay();
 			if (ray)
